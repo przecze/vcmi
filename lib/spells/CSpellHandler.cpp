@@ -605,6 +605,20 @@ CSpellHandler::CSpellHandler() = default;
 
 CSpellHandler::~CSpellHandler() = default;
 
+const spells::Spell * CSpellHandler::getSpell(const SpellID & spellID) const
+{
+	auto index = spellID.toEnum();
+	if(index < 0 || index >= objects.size())
+	{
+		logGlobal->error("Unable to get spell with ID %d", int(index));
+		return nullptr;
+	}
+	else
+	{
+		return objects.at(index).get();
+	}
+}
+
 std::vector<JsonNode> CSpellHandler::loadLegacyData(size_t dataSize)
 {
 	using namespace SpellConfig;

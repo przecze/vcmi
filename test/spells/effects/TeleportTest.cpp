@@ -61,6 +61,8 @@ TEST_F(TeleportApplyTest, MovesUnit)
 
 	EXPECT_CALL(*battleFake, moveUnit(Eq(unitId), Eq(destination)));
 
+	EXPECT_CALL(mechanicsMock, getEffectLevel()).WillRepeatedly(Return(0));
+
 	Target target;
 	target.emplace_back(&unit, BattleHex());
 	target.emplace_back(destination);

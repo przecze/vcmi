@@ -16,12 +16,13 @@
 #include "JsonNode.h"
 #include "IHandlerBase.h"
 #include "CRandomGenerator.h"
+#include "Creature.h"
 
 class CLegacyConfigParser;
 class CCreatureHandler;
 class CCreature;
 
-class DLL_LINKAGE CCreature : public CBonusSystemNode
+class DLL_LINKAGE CCreature : public Creature, public CBonusSystemNode
 {
 public:
 	std::string identifier;

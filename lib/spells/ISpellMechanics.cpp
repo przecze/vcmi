@@ -737,6 +737,12 @@ std::vector<AimType> BaseMechanics::getTargetTypes() const
 	return ret;
 }
 
+const SpellService * BaseMechanics::spellService() const
+{
+	return VLC->spellService(); //todo: remove
+}
+
+
 } //namespace spells
 
 ///IAdventureSpellMechanics

@@ -110,6 +110,7 @@
 		<Unit filename="mock/mock_spells_Mechanics.h" />
 		<Unit filename="mock/mock_spells_Problem.h" />
 		<Unit filename="mock/mock_spells_Spell.h" />
+		<Unit filename="mock/mock_spells_SpellService.h" />
 		<Unit filename="mock/mock_vstd_RNG.h" />
 		<Unit filename="rmg/CRmgTemplateTest.cpp" />
 		<Unit filename="spells/AbilityCasterTest.cpp" />

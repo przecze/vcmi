@@ -65,6 +65,8 @@ public:
 
 	MOCK_CONST_METHOD1(ownerMatches, bool(const battle::Unit *));
 	MOCK_CONST_METHOD2(ownerMatches, bool(const battle::Unit *, const boost::logic::tribool));
+
+	MOCK_CONST_METHOD0(spellService, const SpellService *());
 };
 
 }

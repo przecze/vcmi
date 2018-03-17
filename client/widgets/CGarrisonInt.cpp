@@ -363,11 +363,11 @@ void CGarrisonSlot::update()
 	}
 }
 
-CGarrisonSlot::CGarrisonSlot(CGarrisonInt *Owner, int x, int y, SlotID IID, CGarrisonSlot::EGarrisonType Upg, const CStackInstance * Creature):
+CGarrisonSlot::CGarrisonSlot(CGarrisonInt * Owner, int x, int y, SlotID IID, CGarrisonSlot::EGarrisonType Upg, const CStackInstance * creature_):
     ID(IID),
     owner(Owner),
-    myStack(Creature),
-    creature(Creature ? Creature->type : nullptr),
+    myStack(creature_),
+    creature(creature_ ? creature_->type : nullptr),
     upg(Upg)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;

@@ -40,7 +40,6 @@ class CMap;
 class AdventureSpellCastParameters;
 class SpellCastEnvironment;
 
-
 namespace spells
 {
 
@@ -55,7 +54,6 @@ struct SchoolInfo
 };
 
 }
-
 
 enum class VerticalPosition : ui8{TOP, CENTER, BOTTOM};
 
@@ -249,14 +247,11 @@ public:
 	spells::AimType getTargetType() const;
 
 	bool isCombatSpell() const;
-	bool isAdventureSpell() const;
 	bool isCreatureAbility() const;
 
 	bool isPositive() const;
 	bool isNegative() const;
 	bool isNeutral() const;
-
-	boost::logic::tribool getPositiveness() const;
 
 	bool isDamageSpell() const;
 	bool isRisingSpell() const;
@@ -292,6 +287,10 @@ public:
 
 	int32_t getIndex() const override;
 	int32_t getLevel() const override;
+
+	boost::logic::tribool getPositiveness() const override;
+
+	bool isAdventureSpell() const override;
 
 	/**
 	 * Returns resource name of icon for SPELL_IMMUNITY bonus
@@ -424,11 +423,13 @@ private:
 
 bool DLL_LINKAGE isInScreenRange(const int3 &center, const int3 &pos); //for spells like Dimension Door
 
-class DLL_LINKAGE CSpellHandler: public CHandlerBase<SpellID, CSpell>
+class DLL_LINKAGE CSpellHandler: public CHandlerBase<SpellID, CSpell>, public spells::SpellService
 {
 public:
 	CSpellHandler();
 	virtual ~CSpellHandler();
+
+	const spells::Spell * getSpell(const SpellID & spellID) const override;
 
 	///IHandler base
 	std::vector<JsonNode> loadLegacyData(size_t dataSize) override;

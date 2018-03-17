@@ -20,7 +20,6 @@
 					<Add option="-Og" />
 					<Add option="-g" />
 					<Add directory="$(#zlib.include)" />
-					<Add directory="lib/" />
 				</Compiler>
 				<Linker>
 					<Add option="-lws2_32" />
@@ -50,7 +49,6 @@
 					<Add option="-fomit-frame-pointer" />
 					<Add option="-O2" />
 					<Add directory="$(#zlib.include)" />
-					<Add directory="lib/" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -82,7 +80,6 @@
 					<Add option="-Og" />
 					<Add option="-g" />
 					<Add directory="$(#zlib64.include)" />
-					<Add directory="lib/" />
 				</Compiler>
 				<Linker>
 					<Add option="-lws2_32" />
@@ -133,6 +130,7 @@
 		<Unit filename="../include/vstd/ContainerUtils.h" />
 		<Unit filename="../include/vstd/RNG.h" />
 		<Unit filename="AI_Base.h" />
+		<Unit filename="Artifact.h" />
 		<Unit filename="CArtHandler.cpp" />
 		<Unit filename="CArtHandler.h" />
 		<Unit filename="CBonusTypeHandler.cpp" />
@@ -179,6 +177,7 @@
 		<Unit filename="CTownHandler.h" />
 		<Unit filename="CondSh.h" />
 		<Unit filename="ConstTransitivePtr.h" />
+		<Unit filename="Creature.h" />
 		<Unit filename="FunctionList.h" />
 		<Unit filename="GameConstants.cpp" />
 		<Unit filename="GameConstants.h" />
@@ -203,6 +202,7 @@
 		<Unit filename="ResourceSet.cpp" />
 		<Unit filename="ResourceSet.h" />
 		<Unit filename="ScopeGuard.h" />
+		<Unit filename="Services.h" />
 		<Unit filename="StartInfo.h" />
 		<Unit filename="StdInc.h">
 			<Option compile="1" />
@@ -399,6 +399,8 @@
 		<Unit filename="spells/Problem.h" />
 		<Unit filename="spells/ProxyCaster.cpp" />
 		<Unit filename="spells/ProxyCaster.h" />
+		<Unit filename="spells/Spell.h" />
+		<Unit filename="spells/SpellService.h" />
 		<Unit filename="spells/TargetCondition.cpp" />
 		<Unit filename="spells/TargetCondition.h" />
 		<Unit filename="spells/ViewSpellInt.cpp" />

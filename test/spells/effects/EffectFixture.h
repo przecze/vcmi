@@ -14,6 +14,8 @@
 
 #include "mock/mock_spells_Mechanics.h"
 #include "mock/mock_spells_Problem.h"
+#include "mock/mock_spells_Spell.h"
+#include "mock/mock_spells_SpellService.h"
 
 #include "mock/mock_BonusBearer.h"
 #include "mock/mock_battle_IBattleState.h"
@@ -75,7 +77,9 @@ public:
 
 	std::shared_ptr<::spells::effects::Effect> subject;
 	::spells::ProblemMock problemMock;
-	::spells::MechanicsMock mechanicsMock;
+	::testing::StrictMock<::spells::MechanicsMock> mechanicsMock;
+	::testing::StrictMock<::spells::SpellServiceMock> spellServiceMock;
+	::testing::StrictMock<::spells::SpellMock> spellStub;
 	vstd::RNGMock rngMock;
 
 	UnitsFake unitsFake;

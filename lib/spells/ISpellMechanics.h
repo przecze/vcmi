@@ -253,6 +253,9 @@ public:
 	virtual bool ownerMatches(const battle::Unit * unit) const = 0;
 	virtual bool ownerMatches(const battle::Unit * unit, const boost::logic::tribool positivness) const = 0;
 
+	//Global environment facade
+	virtual const SpellService * spellService() const = 0;
+
 	const CBattleInfoCallback * cb;
 	const Caster * caster;
 
@@ -302,6 +305,8 @@ public:
 	bool ownerMatches(const battle::Unit * unit, const boost::logic::tribool positivness) const override;
 
 	std::vector<AimType> getTargetTypes() const override;
+
+	const SpellService * spellService() const override;
 
 protected:
 	const CSpell * owner;

@@ -9,6 +9,8 @@
  */
 #pragma once
 
+#include "Services.h"
+
 class CConsoleHandler;
 class CArtHandler;
 class CHeroHandler;
@@ -27,7 +29,7 @@ class CTerrainViewPatternConfig;
 class CRmgTemplateStorage;
 
 /// Loads and constructs several handlers
-class DLL_LINKAGE LibClasses
+class DLL_LINKAGE LibClasses : public Services
 {
 	CBonusTypeHandler * bth;
 
@@ -36,7 +38,9 @@ class DLL_LINKAGE LibClasses
 public:
 	bool IS_AI_ENABLED; //unused?
 
-	const IBonusTypeHandler * getBth() const;
+	const spells::SpellService * spellService() const override;
+
+	const IBonusTypeHandler * getBth() const; //deprecated
 
 	CArtHandler * arth;
 	CHeroHandler * heroh;
