@@ -17,6 +17,9 @@
 #include "mock/mock_spells_Spell.h"
 #include "mock/mock_spells_SpellService.h"
 
+#include "mock/mock_Creature.h"
+#include "mock/mock_CreatureService.h"
+
 #include "mock/mock_BonusBearer.h"
 #include "mock/mock_battle_IBattleState.h"
 #include "mock/mock_battle_Unit.h"
@@ -38,7 +41,6 @@ namespace test
 class EffectFixture
 {
 public:
-
 	class UnitFake : public UnitMock
 	{
 	public:
@@ -78,6 +80,8 @@ public:
 	std::shared_ptr<::spells::effects::Effect> subject;
 	::spells::ProblemMock problemMock;
 	::testing::StrictMock<::spells::MechanicsMock> mechanicsMock;
+	::testing::StrictMock<CreatureServiceMock> creatureServiceMock;
+	::testing::StrictMock<CreatureMock> creatureStub;
 	::testing::StrictMock<::spells::SpellServiceMock> spellServiceMock;
 	::testing::StrictMock<::spells::SpellMock> spellStub;
 	vstd::RNGMock rngMock;

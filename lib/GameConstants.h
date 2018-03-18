@@ -13,6 +13,8 @@
 
 class CArtifact;
 class CArtifactInstance;
+class Creature;
+class CreatureService;
 class CCreature;
 class CHero;
 class CSpell;
@@ -980,6 +982,7 @@ public:
 	{}
 
 	DLL_LINKAGE const CCreature * toCreature() const;
+	DLL_LINKAGE const Creature * toCreature(const CreatureService * creatureService) const;
 
 	ID_LIKE_CLASS_COMMON(CreatureID, ECreatureID)
 

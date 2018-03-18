@@ -72,6 +72,11 @@ const CCreature * CreatureID::toCreature() const
 	return VLC->creh->creatures.at(*this);
 }
 
+const Creature * CreatureID::toCreature(const CreatureService * creatureService) const
+{
+	return creatureService->getCreature(*this);
+}
+
 si32 CreatureID::decode(const std::string & identifier)
 {
 	auto rawId = VLC->modh->identifiers.getIdentifier("core", "creature", identifier);

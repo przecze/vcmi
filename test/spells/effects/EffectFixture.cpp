@@ -128,6 +128,9 @@ void EffectFixture::setUp()
 	ON_CALL(*battleFake, getUnitsIf(_)).WillByDefault(Invoke(&unitsFake, &UnitsFake::getUnitsIf));
 	ON_CALL(mechanicsMock, spellService()).WillByDefault(Return(&spellServiceMock));
 	ON_CALL(spellServiceMock, getSpell(_)).WillByDefault(Return(&spellStub));
+
+	ON_CALL(mechanicsMock, creatureService()).WillByDefault(Return(&creatureServiceMock));
+	ON_CALL(creatureServiceMock, getCreature(_)).WillByDefault(Return(&creatureStub));
 }
 
 static vstd::TRandI64 getInt64RangeDef(int64_t lower, int64_t upper)

@@ -737,11 +737,15 @@ std::vector<AimType> BaseMechanics::getTargetTypes() const
 	return ret;
 }
 
-const SpellService * BaseMechanics::spellService() const
+const CreatureService * BaseMechanics::creatureService() const
 {
-	return VLC->spellService(); //todo: remove
+	return VLC->creatureService(); //todo: redirect
 }
 
+const SpellService * BaseMechanics::spellService() const
+{
+	return VLC->spellService(); //todo: redirect
+}
 
 } //namespace spells
 

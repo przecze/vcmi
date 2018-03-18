@@ -120,8 +120,8 @@ void Summon::apply(BattleStateProxy * battleState, RNG & rng, const Mechanics * 
 
 			if(summonByHealth)
 			{
-				auto creatureType = creature.toCreature();
-				auto creatureMaxHealth = creatureType->MaxHealth();
+				auto creatureType = creature.toCreature(m->creatureService());
+				auto creatureMaxHealth = creatureType->getMaxHealth();
 				amount = valueWithBonus / creatureMaxHealth;
 			}
 			else

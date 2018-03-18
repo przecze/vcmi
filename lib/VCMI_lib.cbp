@@ -178,6 +178,7 @@
 		<Unit filename="CondSh.h" />
 		<Unit filename="ConstTransitivePtr.h" />
 		<Unit filename="Creature.h" />
+		<Unit filename="CreatureService.h" />
 		<Unit filename="FunctionList.h" />
 		<Unit filename="GameConstants.cpp" />
 		<Unit filename="GameConstants.h" />

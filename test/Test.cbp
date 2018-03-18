@@ -18,6 +18,7 @@
 					<Add option="-Wextra" />
 					<Add option="-g" />
 					<Add directory="mock" />
+					<Add directory="mock/" />
 				</Compiler>
 				<Linker>
 					<Add directory="$(#boost.lib32)" />
@@ -34,6 +35,7 @@
 					<Add option="-Wextra" />
 					<Add option="-g" />
 					<Add directory="mock" />
+					<Add directory="mock/" />
 				</Compiler>
 				<Linker>
 					<Add directory="$(#boost.lib64)" />
@@ -99,6 +101,8 @@
 		<Unit filename="map/MapComparer.h" />
 		<Unit filename="mock/mock_BonusBearer.cpp" />
 		<Unit filename="mock/mock_BonusBearer.h" />
+		<Unit filename="mock/mock_Creature.h" />
+		<Unit filename="mock/mock_CreatureService.h" />
 		<Unit filename="mock/mock_IGameCallback.cpp" />
 		<Unit filename="mock/mock_IGameCallback.h" />
 		<Unit filename="mock/mock_MapService.cpp" />

@@ -1,5 +1,5 @@
 /*
- * Creature.h, part of VCMI engine
+ * mock_Creature.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -10,11 +10,11 @@
 
 #pragma once
 
-class DLL_LINKAGE Creature
+#include "../../lib/Creature.h"
+
+class CreatureMock : public Creature
 {
 public:
-	virtual ~Creature() = default;
-
-	virtual int32_t getIndex() const = 0;
-	virtual uint32_t getMaxHealth() const = 0;
+	MOCK_CONST_METHOD0(getIndex, int32_t());
+	MOCK_CONST_METHOD0(getMaxHealth, uint32_t());
 };

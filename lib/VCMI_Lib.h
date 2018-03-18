@@ -38,6 +38,7 @@ class DLL_LINKAGE LibClasses : public Services
 public:
 	bool IS_AI_ENABLED; //unused?
 
+	const CreatureService * creatureService() const override;
 	const spells::SpellService * spellService() const override;
 
 	const IBonusTypeHandler * getBth() const; //deprecated

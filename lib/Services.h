@@ -10,6 +10,8 @@
 
 #pragma once
 
+class CreatureService;
+
 namespace spells
 {
 	class SpellService;
@@ -20,6 +22,6 @@ class DLL_LINKAGE Services
 public:
 	virtual ~Services() = default;
 
+	virtual const CreatureService * creatureService() const = 0;
 	virtual const spells::SpellService * spellService() const = 0;
-
 };

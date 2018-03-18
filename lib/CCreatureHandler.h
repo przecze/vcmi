@@ -17,6 +17,7 @@
 #include "IHandlerBase.h"
 #include "CRandomGenerator.h"
 #include "Creature.h"
+#include "CreatureService.h"
 
 class CLegacyConfigParser;
 class CCreatureHandler;
@@ -115,6 +116,9 @@ public:
 
 	ArtifactID warMachine;
 
+	virtual int32_t getIndex() const override;
+	virtual uint32_t getMaxHealth() const override;
+
 	bool isItNativeTerrain(int terrain) const;
 	bool isDoubleWide() const; //returns true if unit is double wide on battlefield
 	bool isFlying() const; //returns true if it is a flying unit
@@ -191,7 +195,7 @@ private:
 	void fillWarMachine();
 };
 
-class DLL_LINKAGE CCreatureHandler : public IHandlerBase
+class DLL_LINKAGE CCreatureHandler : public IHandlerBase, public CreatureService
 {
 private:
 	CBonusSystemNode allCreatures;
@@ -245,6 +249,8 @@ public:
 
 	CCreatureHandler();
 	~CCreatureHandler();
+
+	const Creature * getCreature(const CreatureID & creatureID) const override;
 
 	/// load all creatures from H3 files
 	void loadCrExpBon();
