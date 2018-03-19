@@ -35,6 +35,8 @@ namespace battle
 	bool operator== (const Destination & left, const Destination & right);
 }
 
+bool operator==(const Bonus & b1, const Bonus & b2);
+
 namespace test
 {
 

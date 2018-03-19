@@ -15,6 +15,10 @@
 #include "../../lib/battle/CUnitState.h"
 #include "../../lib/CCreatureHandler.h"
 
+namespace test
+{
+using namespace ::testing;
+
 static const int32_t DEFAULT_HP = 123;
 static const int32_t DEFAULT_AMOUNT = 100;
 static const int32_t DEFAULT_SPEED = 10;
@@ -22,7 +26,7 @@ static const BattleHex DEFAULT_POSITION = BattleHex(5, 5);
 static const int DEFAULT_ATTACK = 58;
 static const int DEFAULT_DEFENCE = 63;
 
-class UnitStateTest : public testing::Test
+class UnitStateTest : public Test
 {
 public:
 	UnitInfoMock infoMock;
@@ -47,7 +51,6 @@ public:
 
 	void setDefaultExpectations()
 	{
-		using namespace testing;
 		bonusMock.addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::STACKS_SPEED, Bonus::CREATURE_ABILITY, DEFAULT_SPEED, 0));
 
 		bonusMock.addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::PRIMARY_SKILL, Bonus::CREATURE_ABILITY, DEFAULT_ATTACK, 0, PrimarySkill::ATTACK));
@@ -238,4 +241,6 @@ TEST_F(UnitStateTest, additionalRangedAttack)
 
 	EXPECT_EQ(subject.getTotalAttacks(false), 1);
 	EXPECT_EQ(subject.getTotalAttacks(true), 42);
+}
+
 }

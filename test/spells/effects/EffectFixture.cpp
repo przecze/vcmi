@@ -20,6 +20,20 @@ bool battle::operator==(const Destination& left, const Destination& right)
 	return left.unitValue == right.unitValue && left.hexValue == right.hexValue;
 }
 
+bool operator==(const Bonus & b1, const Bonus & b2)
+{
+	return b1.duration == b2.duration
+		&& b1.type == b2.type
+		&& b1.subtype == b2.subtype
+		&& b1.source == b2.source
+		&& b1.val == b2.val
+		&& b1.sid == b2.sid
+		&& b1.valType == b2.valType
+		&& b1.additionalInfo == b2.additionalInfo
+		&& b1.effectRange == b2.effectRange
+		&& b1.description == b2.description;
+}
+
 namespace test
 {
 
