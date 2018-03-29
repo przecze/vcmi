@@ -243,4 +243,36 @@ TEST_F(UnitStateTest, additionalRangedAttack)
 	EXPECT_EQ(subject.getTotalAttacks(true), 42);
 }
 
+TEST_F(UnitStateTest, getMinDamage)
+{
+	setDefaultExpectations();
+
+	{
+		auto bonus = std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::CREATURE_DAMAGE, Bonus::SPELL_EFFECT, 30, 0, 0);
+		bonusMock.addNewBonus(bonus);
+
+		bonus = std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::CREATURE_DAMAGE, Bonus::SPELL_EFFECT, -20, 0, 1);
+		bonusMock.addNewBonus(bonus);
+	}
+
+	EXPECT_EQ(subject.getMinDamage(false), 10);
+	EXPECT_EQ(subject.getMinDamage(true), 10);
+}
+
+TEST_F(UnitStateTest, getMaxDamage)
+{
+	setDefaultExpectations();
+
+	{
+		auto bonus = std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::CREATURE_DAMAGE, Bonus::SPELL_EFFECT, 30, 0, 0);
+		bonusMock.addNewBonus(bonus);
+
+		bonus = std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::CREATURE_DAMAGE, Bonus::SPELL_EFFECT, -20, 0, 2);
+		bonusMock.addNewBonus(bonus);
+	}
+
+	EXPECT_EQ(subject.getMaxDamage(false), 10);
+	EXPECT_EQ(subject.getMaxDamage(true), 10);
+}
+
 }
