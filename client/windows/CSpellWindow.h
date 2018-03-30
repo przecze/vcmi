@@ -30,12 +30,12 @@ class CSpellWindow : public CWindowObject
 	{
 		const CSpell * mySpell;
 		int schoolLevel; //range: 0 none, 3 - expert
-		int whichSchool; //0 - air magic, 1 - fire magic, 2 - water magic, 3 - earth magic,
-		int spellCost;
 		CSpellWindow * owner;
-		CAnimImage * image;
-		std::shared_ptr<IImage> schoolBorder;
-		CLabel * name, * level, * cost;
+		std::shared_ptr<CAnimImage> image;
+		std::shared_ptr<CAnimImage> schoolBorder;
+		std::shared_ptr<CLabel> name;
+		std::shared_ptr<CLabel> level;
+		std::shared_ptr<CLabel> cost;
 	public:
 		SpellArea(SDL_Rect pos, CSpellWindow * owner);
 		~SpellArea();
@@ -44,7 +44,6 @@ class CSpellWindow : public CWindowObject
 		void clickLeft(tribool down, bool previousState) override;
 		void clickRight(tribool down, bool previousState) override;
 		void hover(bool on) override;
-		void showAll(SDL_Surface * to) override;
 	};
 
 	class InteractiveArea : public CIntObject

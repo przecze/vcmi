@@ -143,4 +143,3 @@ struct SSetCaptureState
 #define OBJECT_CONSTRUCTION_CAPTURING(actions) defActions = actions; SSetCaptureState obj__i1(true, actions); SObjectConstruction obj__i(this)
 #define OBJ_CONSTRUCTION_CAPTURING_ALL defActions = 255; SSetCaptureState obj__i1(true, 255); SObjectConstruction obj__i(this)
 #define BLOCK_CAPTURING SSetCaptureState obj__i(false, 0)
-#define BLOCK_CAPTURING_DONT_TOUCH_REC_ACTIONS SSetCaptureState obj__i(false, GH.defActionsDef)

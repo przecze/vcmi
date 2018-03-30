@@ -182,7 +182,7 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 	schoolBorders[3] = std::make_shared<CAnimation>("SplevE.def");
 
 	for(auto item : schoolBorders)
-		item->load();
+		item->preload();
 	mana = new CLabel(435, 426, FONT_SMALL, CENTER, Colors::YELLOW, boost::lexical_cast<std::string>(myHero->mana));
 	statusBar = new CGStatusBar(7, 569, "Spelroll.bmp");
 
@@ -248,9 +248,6 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 
 CSpellWindow::~CSpellWindow()
 {
-	for(auto item : schoolBorders)
-		item->unload();
-	spells->unload();
 }
 
 void CSpellWindow::fexitb()
@@ -503,17 +500,17 @@ CSpellWindow::SpellArea::SpellArea(SDL_Rect pos, CSpellWindow * owner)
 	this->owner = owner;
 	addUsedEvents(LCLICK | RCLICK | HOVER);
 
-	spellCost = whichSchool = schoolLevel = -1;
+	schoolLevel = -1;
 	mySpell = nullptr;
 
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
-	image = new CAnimImage(owner->spells, 0, 0);
+	image = std::make_shared<CAnimImage>(owner->spells, 0, 0);
 	image->visible = false;
 
-	name  = new CLabel(39, 70, FONT_TINY, CENTER);
-	level = new CLabel(39, 82, FONT_TINY, CENTER);
-	cost  = new CLabel(39, 94, FONT_TINY, CENTER);
+	name  = std::make_shared<CLabel>(39, 70, FONT_TINY, CENTER);
+	level = std::make_shared<CLabel>(39, 82, FONT_TINY, CENTER);
+	cost  = std::make_shared<CLabel>(39, 94, FONT_TINY, CENTER);
 
 	for(auto l : {name, level, cost})
 		l->autoRedraw = false;
@@ -622,17 +619,6 @@ void CSpellWindow::SpellArea::hover(bool on)
 	}
 }
 
-void CSpellWindow::SpellArea::showAll(SDL_Surface * to)
-{
-	if(mySpell)
-	{
-		//printing border (indicates level of magic school)
-		if(schoolBorder)
-			schoolBorder->draw(to, pos.x, pos.y);
-		CIntObject::showAll(to);
-	}
-}
-
 void CSpellWindow::SpellArea::setSpell(const CSpell * spell)
 {
 	schoolBorder.reset();
@@ -643,12 +629,17 @@ void CSpellWindow::SpellArea::setSpell(const CSpell * spell)
 	mySpell = spell;
 	if(mySpell)
 	{
+		int whichSchool = 0; //0 - air magic, 1 - fire magic, 2 - water magic, 3 - earth magic,
 		schoolLevel = owner->myHero->getSpellSchoolLevel(mySpell, &whichSchool);
-		spellCost = owner->myInt->cb->getSpellCost(mySpell, owner->myHero);
+		auto spellCost = owner->myInt->cb->getSpellCost(mySpell, owner->myHero);
 
 		image->setFrame(mySpell->id);
 		image->visible = true;
-		schoolBorder = owner->schoolBorders[owner->selectedTab >= 4 ? whichSchool : owner->selectedTab]->getImage(schoolLevel,0);
+
+		{
+			OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+			schoolBorder = std::make_shared<CAnimImage>(owner->schoolBorders[owner->selectedTab >= 4 ? whichSchool : owner->selectedTab], schoolLevel);
+		}
 
 		SDL_Color firstLineColor, secondLineColor;
 		if(spellCost > owner->myHero->mana) //hero cannot cast this spell
