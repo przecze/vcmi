@@ -102,7 +102,7 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 	myHero(_myHero),
 	myInt(_myInt)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	//initializing castable spells
 	mySpells.reserve(CGI->spellh->objects.size());
 	for(const CSpell * spell : CGI->spellh->objects)
@@ -168,13 +168,13 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 
 	//numbers of spell pages computed
 
-	leftCorner = new CPicture("SpelTrnL.bmp", 97, 77);
-	rightCorner = new CPicture("SpelTrnR.bmp", 487, 72);
+	leftCorner = std::make_shared<CPicture>("SpelTrnL.bmp", 97, 77);
+	rightCorner = std::make_shared<CPicture>("SpelTrnR.bmp", 487, 72);
 
 	spells = std::make_shared<CAnimation>("Spells");
 
-	spellTab = new CAnimImage("SpelTab", selectedTab, 0, 524, 88);
-	schools = new CAnimImage("Schools",0,0,117,74);
+	spellTab = std::make_shared<CAnimImage>("SpelTab", selectedTab, 0, 524, 88);
+	schools = std::make_shared<CAnimImage>("Schools",0,0,117,74);
 
 	schoolBorders[0] = std::make_shared<CAnimation>("SplevA.def");
 	schoolBorders[1] = std::make_shared<CAnimation>("SplevF.def");
@@ -183,33 +183,33 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 
 	for(auto item : schoolBorders)
 		item->preload();
-	mana = new CLabel(435, 426, FONT_SMALL, CENTER, Colors::YELLOW, boost::lexical_cast<std::string>(myHero->mana));
-	statusBar = new CGStatusBar(7, 569, "Spelroll.bmp");
+	mana = std::make_shared<CLabel>(435, 426, FONT_SMALL, CENTER, Colors::YELLOW, boost::lexical_cast<std::string>(myHero->mana));
+	statusBar = std::make_shared<CGStatusBar>(7, 569, "Spelroll.bmp");
 
 	SDL_Rect temp_rect = genRect(45, 35, 479 + pos.x, 405 + pos.y);
-	new InteractiveArea(temp_rect, std::bind(&CSpellWindow::fexitb, this), 460, this);
+	interactiveAreas.push_back(std::make_shared<InteractiveArea>(temp_rect, std::bind(&CSpellWindow::fexitb, this), 460, this));
 	temp_rect = genRect(45, 35, 221 + pos.x, 405 + pos.y);
-	new InteractiveArea(temp_rect, std::bind(&CSpellWindow::fbattleSpellsb, this), 453, this);
+	interactiveAreas.push_back(std::make_shared<InteractiveArea>(temp_rect, std::bind(&CSpellWindow::fbattleSpellsb, this), 453, this));
 	temp_rect = genRect(45, 35, 355 + pos.x, 405 + pos.y);
-	new InteractiveArea(temp_rect, std::bind(&CSpellWindow::fadvSpellsb, this), 452, this);
+	interactiveAreas.push_back(std::make_shared<InteractiveArea>(temp_rect, std::bind(&CSpellWindow::fadvSpellsb, this), 452, this));
 	temp_rect = genRect(45, 35, 418 + pos.x, 405 + pos.y);
-	new InteractiveArea(temp_rect, std::bind(&CSpellWindow::fmanaPtsb, this), 459, this);
+	interactiveAreas.push_back(std::make_shared<InteractiveArea>(temp_rect, std::bind(&CSpellWindow::fmanaPtsb, this), 459, this));
 
 	temp_rect = genRect(36, 56, 549 + pos.x, 94 + pos.y);
-	new InteractiveArea(temp_rect, std::bind(&CSpellWindow::selectSchool, this, 0), 454, this);
+	interactiveAreas.push_back(std::make_shared<InteractiveArea>(temp_rect, std::bind(&CSpellWindow::selectSchool, this, 0), 454, this));
 	temp_rect = genRect(36, 56, 549 + pos.x, 151 + pos.y);
-	new InteractiveArea(temp_rect, std::bind(&CSpellWindow::selectSchool, this, 3), 457, this);
+	interactiveAreas.push_back(std::make_shared<InteractiveArea>(temp_rect, std::bind(&CSpellWindow::selectSchool, this, 3), 457, this));
 	temp_rect = genRect(36, 56, 549 + pos.x, 210 + pos.y);
-	new InteractiveArea(temp_rect, std::bind(&CSpellWindow::selectSchool, this, 1), 455, this);
+	interactiveAreas.push_back(std::make_shared<InteractiveArea>(temp_rect, std::bind(&CSpellWindow::selectSchool, this, 1), 455, this));
 	temp_rect = genRect(36, 56, 549 + pos.x, 270 + pos.y);
-	new InteractiveArea(temp_rect, std::bind(&CSpellWindow::selectSchool, this, 2), 456, this);
+	interactiveAreas.push_back(std::make_shared<InteractiveArea>(temp_rect, std::bind(&CSpellWindow::selectSchool, this, 2), 456, this));
 	temp_rect = genRect(36, 56, 549 + pos.x, 330 + pos.y);
-	new InteractiveArea(temp_rect, std::bind(&CSpellWindow::selectSchool, this, 4), 458, this);
+	interactiveAreas.push_back(std::make_shared<InteractiveArea>(temp_rect, std::bind(&CSpellWindow::selectSchool, this, 4), 458, this));
 
 	temp_rect = genRect(leftCorner->bg->h, leftCorner->bg->w, 97 + pos.x, 77 + pos.y);
-	new InteractiveArea(temp_rect, std::bind(&CSpellWindow::fLcornerb, this), 450, this);
+	interactiveAreas.push_back(std::make_shared<InteractiveArea>(temp_rect, std::bind(&CSpellWindow::fLcornerb, this), 450, this));
 	temp_rect = genRect(rightCorner->bg->h, rightCorner->bg->w, 487 + pos.x, 72 + pos.y);
-	new InteractiveArea(temp_rect, std::bind(&CSpellWindow::fRcornerb, this), 451, this);
+	interactiveAreas.push_back(std::make_shared<InteractiveArea>(temp_rect, std::bind(&CSpellWindow::fRcornerb, this), 451, this));
 
 	//areas for spells
 	int xpos = 117 + pos.x, ypos = 90 + pos.y;
@@ -217,7 +217,7 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 	for(int v=0; v<12; ++v)
 	{
 		temp_rect = genRect(65, 78, xpos, ypos);
-		spellAreas[v] = new SpellArea(temp_rect, this);
+		spellAreas[v] = std::make_shared<SpellArea>(temp_rect, this);
 
 		if(v == 5) //to right page
 		{
