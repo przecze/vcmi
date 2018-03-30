@@ -1502,7 +1502,6 @@ void SelectionTab::printMaps(SDL_Surface *to)
 			if(icon)
 			{
 				icon->draw(to, pos.x + 88, pos.y + 117 + line * 25);
-				icon->decreaseRef();
 			}
 
 			//victory conditions
@@ -1510,14 +1509,12 @@ void SelectionTab::printMaps(SDL_Surface *to)
 			if(icon)
 			{
 				icon->draw(to, pos.x + 306, pos.y + 117 + line * 25);
-				icon->decreaseRef();
 			}
 			//loss conditions
 			icon = CGP->lossIcons->getImage(currentItem->mapHeader->defeatIconIndex,0);
 			if(icon)
 			{
 				icon->draw(to, pos.x + 339, pos.y + 117 + line * 25);
-				icon->decreaseRef();
 			}
 		}
 		else //if campaign
@@ -2192,7 +2189,6 @@ void InfoCard::showAll(SDL_Surface * to)
 				auto flag = sFlags->getImage(i->first.getNum(),0);
 				flag->draw(to, pos.x + *myx, pos.y + 399);
 				*myx += flag->width();
-				flag->decreaseRef();
 			}
 
 			std::string tob;
@@ -2289,7 +2285,6 @@ void InfoCard::showTeamsPopup()
 		{
 			auto icon = sFlags->getImage(flag,0);
 			icon->draw(bmp, curx, 75 + 50*i);
-			icon->decreaseRef();
 			curx += 18;
 		}
 	}
@@ -3520,7 +3515,6 @@ void CBonusSelection::show(SDL_Surface * to)
 		auto flag = sFlags->getImage(i->first.getNum(), 0);
 		flag->draw(to, pos.x + *myx, pos.y + 405);
 		*myx += flag->width();
-		flag->decreaseRef();
 	}
 
 	//difficulty
