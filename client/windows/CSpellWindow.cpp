@@ -171,10 +171,10 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 	leftCorner = std::make_shared<CPicture>("SpelTrnL.bmp", 97, 77);
 	rightCorner = std::make_shared<CPicture>("SpelTrnR.bmp", 487, 72);
 
-	spells = std::make_shared<CAnimation>("Spells");
+	spellIcons = std::make_shared<CAnimation>("Spells");
 
-	spellTab = std::make_shared<CAnimImage>("SpelTab", selectedTab, 0, 524, 88);
-	schools = std::make_shared<CAnimImage>("Schools",0,0,117,74);
+	schoolTab = std::make_shared<CAnimImage>("SpelTab", selectedTab, 0, 524, 88);
+	schoolPicture = std::make_shared<CAnimImage>("Schools", 0, 0, 117, 74);
 
 	schoolBorders[0] = std::make_shared<CAnimation>("SplevA.def");
 	schoolBorders[1] = std::make_shared<CAnimation>("SplevF.def");
@@ -237,7 +237,7 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 	}
 
 	selectedTab = battleSpellsOnly ? myInt->spellbookSettings.spellbookLastTabBattle : myInt->spellbookSettings.spellbookLastTabAdvmap;
-	spellTab->setFrame(selectedTab, 0);
+	schoolTab->setFrame(selectedTab, 0);
 	int cp = battleSpellsOnly ? myInt->spellbookSettings.spellbookLastPageBattle : myInt->spellbookSettings.spellbokLastPageAdvmap;
 	// spellbook last page battle index is not reset after battle, so this needs to stay here
 	vstd::abetween(cp, 0, std::max(0, pagesWithinCurrentTab() - 1));
@@ -260,7 +260,7 @@ void CSpellWindow::fexitb()
 
 void CSpellWindow::fadvSpellsb()
 {
-	if (battleSpellsOnly == true)
+	if(battleSpellsOnly == true)
 	{
 		turnPageRight();
 		battleSpellsOnly = false;
@@ -271,7 +271,7 @@ void CSpellWindow::fadvSpellsb()
 
 void CSpellWindow::fbattleSpellsb()
 {
-	if (battleSpellsOnly == false)
+	if(battleSpellsOnly == false)
 	{
 		turnPageLeft();
 		battleSpellsOnly = true;
@@ -286,14 +286,14 @@ void CSpellWindow::fmanaPtsb()
 
 void CSpellWindow::selectSchool(int school)
 {
-	if (selectedTab != school)
+	if(selectedTab != school)
 	{
-		if (selectedTab < school)
+		if(selectedTab < school)
 			turnPageLeft();
 		else
 			turnPageRight();
 		selectedTab = school;
-		spellTab->setFrame(selectedTab, 0);
+		schoolTab->setFrame(selectedTab, 0);
 		setCurrentPage(0);
 	}
 	computeSpellsPerArea();
@@ -402,9 +402,9 @@ void CSpellWindow::computeSpellsPerArea()
 void CSpellWindow::setCurrentPage(int value)
 {
 	currentPage = value;
-	schools->visible = selectedTab!=4 && currentPage == 0;
+	schoolPicture->visible = selectedTab!=4 && currentPage == 0;
 	if(selectedTab != 4)
-		schools->setFrame(selectedTab, 0);
+		schoolPicture->setFrame(selectedTab, 0);
 	leftCorner->visible = currentPage != 0;
 	rightCorner->visible = (currentPage+1) < pagesWithinCurrentTab();
 
@@ -413,13 +413,13 @@ void CSpellWindow::setCurrentPage(int value)
 
 void CSpellWindow::turnPageLeft()
 {
-	if (settings["video"]["spellbookAnimation"].Bool())
+	if(settings["video"]["spellbookAnimation"].Bool())
 		CCS->videoh->openAndPlayVideo("PGTRNLFT.SMK", pos.x+13, pos.y+15, screen);
 }
 
 void CSpellWindow::turnPageRight()
 {
-	if (settings["video"]["spellbookAnimation"].Bool())
+	if(settings["video"]["spellbookAnimation"].Bool())
 		CCS->videoh->openAndPlayVideo("PGTRNRGH.SMK", pos.x+13, pos.y+15, screen);
 }
 
@@ -505,21 +505,18 @@ CSpellWindow::SpellArea::SpellArea(SDL_Rect pos, CSpellWindow * owner)
 
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
-	image = std::make_shared<CAnimImage>(owner->spells, 0, 0);
+	image = std::make_shared<CAnimImage>(owner->spellIcons, 0, 0);
 	image->visible = false;
 
-	name  = std::make_shared<CLabel>(39, 70, FONT_TINY, CENTER);
+	name = std::make_shared<CLabel>(39, 70, FONT_TINY, CENTER);
 	level = std::make_shared<CLabel>(39, 82, FONT_TINY, CENTER);
-	cost  = std::make_shared<CLabel>(39, 94, FONT_TINY, CENTER);
+	cost = std::make_shared<CLabel>(39, 94, FONT_TINY, CENTER);
 
 	for(auto l : {name, level, cost})
 		l->autoRedraw = false;
 }
 
-CSpellWindow::SpellArea::~SpellArea()
-{
-
-}
+CSpellWindow::SpellArea::~SpellArea() = default;
 
 void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 {

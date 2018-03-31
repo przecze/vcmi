@@ -61,14 +61,14 @@ class CSpellWindow : public CWindowObject
 		InteractiveArea(const SDL_Rect & myRect, std::function<void()> funcL, int helpTextId, CSpellWindow * _owner);
 	};
 
-	std::shared_ptr<CAnimation> spells; //pictures of spells
-	std::array<std::shared_ptr<CAnimation>, 4> schoolBorders; //schools' 'borders': [0]: air, [1]: fire, [2]: water, [3]: earth
+	std::shared_ptr<CAnimation> spellIcons;
+	std::array<std::shared_ptr<CAnimation>, 4> schoolBorders; //[0]: air, [1]: fire, [2]: water, [3]: earth
 
 	std::shared_ptr<CPicture> leftCorner;
 	std::shared_ptr<CPicture> rightCorner;
 
-	std::shared_ptr<CAnimImage> spellTab; //school select
-	std::shared_ptr<CAnimImage> schools; //schools' pictures
+	std::shared_ptr<CAnimImage> schoolTab;
+	std::shared_ptr<CAnimImage> schoolPicture;
 
 	std::array<std::shared_ptr<SpellArea>, 12> spellAreas;
 	std::shared_ptr<CLabel> mana;
