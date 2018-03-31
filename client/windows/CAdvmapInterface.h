@@ -38,23 +38,27 @@ enum class EAdvMapMode
 	WORLD_VIEW
 };
 
-/// Adventure options dialogue where you can view the world, dig, play the replay of the last turn,...
+/// Adventure options dialog where you can view the world, dig, play the replay of the last turn,...
 class CAdventureOptions : public CWindowObject
 {
 public:
-	CButton *exit, *viewWorld, *puzzle, *dig, *scenInfo/*, *replay*/;
+	std::shared_ptr<CButton> exit;
+	std::shared_ptr<CButton> viewWorld;
+	std::shared_ptr<CButton> puzzle;
+	std::shared_ptr<CButton> dig;
+	std::shared_ptr<CButton> scenInfo;
+	/*std::shared_ptr<CButton> replay*/
 
 	CAdventureOptions();
 	static void showScenarioInfo();
 };
 
 /// Holds information about which tiles of the terrain are shown/not shown at the screen
-class CTerrainRect
-	:  public CIntObject
+class CTerrainRect : public CIntObject
 {
 	SDL_Surface * fadeSurface;
 	EMapAnimRedrawStatus lastRedrawStatus;
-	CFadeAnimation * fadeAnim;
+	std::shared_ptr<CFadeAnimation> fadeAnim;
 
 	int3 swipeInitialMapPos;
 	int3 swipeInitialRealPos;
@@ -69,10 +73,10 @@ public:
 	int tilesw, tilesh; //width and height of terrain to blit in tiles
 	int3 curHoveredTile;
 	int moveX, moveY; //shift between actual position of screen and the one we wil blit; ranges from -31 to 31 (in pixels)
+	CGPath * currentPath;
 
 	CTerrainRect();
 	virtual ~CTerrainRect();
-	CGPath * currentPath;
 	void deactivate() override;
 	void clickLeft(tribool down, bool previousState) override;
 	void clickRight(tribool down, bool previousState) override;
@@ -90,7 +94,6 @@ public:
 	/// animates view by caching current surface and crossfading it with normal screen
 	void fadeFromCurrentView();
 	bool needsAnimUpdate();
-
 };
 
 /// Resources bar which shows information about how many gold, crystals,... you have
@@ -98,7 +101,9 @@ public:
 class CResDataBar : public CIntObject
 {
 public:
-	SDL_Surface * bg;
+	std::shared_ptr<CPicture> background;
+	std::shared_ptr<CLabel> date;
+
 	std::vector<std::pair<int,int> > txtpos;
 	std::string datetext;
 
