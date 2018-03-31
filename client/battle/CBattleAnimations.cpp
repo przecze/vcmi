@@ -784,24 +784,54 @@ bool CShootingAnimation::init()
 	if(shooter->getPosition() < dest)
 		projectileAngle = -projectileAngle;
 
+	logGlobal->error("CShootingAnimation::init! fromPos: x %d, y %d", fromPos.x, fromPos.y);
+	int offsetX;
+	int offsetY;
 	// Calculate projectile start position. Offsets are read out of the CRANIM.TXT.
 	if (projectileAngle > straightAngle)
 	{
+		if(!settings["session"]["upperRightMissleOffsetX"].isNull())
+			offsetX = settings["session"]["upperRightMissleOffsetX"].Integer();
+		else
+			offsetX = shooterInfo->animation.upperRightMissleOffsetX;
+		if(!settings["session"]["upperRightMissleOffsetY"].isNull())
+			offsetY = settings["session"]["upperRightMissleOffsetY"].Integer();
+		else
+			offsetY = shooterInfo->animation.upperRightMissleOffsetY;
+
+
 		//upper shot
-		spi.x = fromPos.x + 222 + ( -25 + shooterInfo->animation.upperRightMissleOffsetX ) * multiplier;
-		spi.y = fromPos.y + 265 + shooterInfo->animation.upperRightMissleOffsetY;
+		spi.x = fromPos.x + 222 + ( -25 + offsetX ) * multiplier;
+		spi.y = fromPos.y + 265 + offsetY;
 	}
 	else if (projectileAngle < -straightAngle)
 	{
+		if(!settings["session"]["lowerRightMissleOffsetX"].isNull())
+			offsetX = settings["session"]["lowerRightMissleOffsetX"].Integer();
+		else
+			offsetX = shooterInfo->animation.lowerRightMissleOffsetX;
+		if(!settings["session"]["lowerRightMissleOffsetY"].isNull())
+			offsetY = settings["session"]["lowerRightMissleOffsetY"].Integer();
+		else
+			offsetY = shooterInfo->animation.lowerRightMissleOffsetY;
+
 		//lower shot
-		spi.x = fromPos.x + 222 + ( -25 + shooterInfo->animation.lowerRightMissleOffsetX ) * multiplier;
-		spi.y = fromPos.y + 265 + shooterInfo->animation.lowerRightMissleOffsetY;
+		spi.x = fromPos.x + 222 + ( -25 + offsetX ) * multiplier;
+		spi.y = fromPos.y + 265 + offsetY;
 	}
 	else
 	{
+		if(!settings["session"]["rightMissleOffsetX"].isNull())
+			offsetX = settings["session"]["rightMissleOffsetX"].Integer();
+		else
+			offsetX = shooterInfo->animation.rightMissleOffsetX;
+		if(!settings["session"]["rightMissleOffsetY"].isNull())
+			offsetY = settings["session"]["rightMissleOffsetY"].Integer();
+		else
+			offsetY = shooterInfo->animation.rightMissleOffsetY;
 		//straight shot
-		spi.x = fromPos.x + 222 + ( -25 + shooterInfo->animation.rightMissleOffsetX ) * multiplier;
-		spi.y = fromPos.y + 265 + shooterInfo->animation.rightMissleOffsetY;
+		spi.x = fromPos.x + 222 + ( -25 + offsetX ) * multiplier;
+		spi.y = fromPos.y + 265 + offsetY;
 	}
 
 	destPos += Point(225, 225);

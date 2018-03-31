@@ -910,6 +910,19 @@ void processCommand(const std::string &message)
 		else
 			logGlobal->error("File not found!");
 	}
+	else if(cn == "cset")
+	{
+		std::string name;
+		std::string x;
+		std::string y;
+		readed >> name;
+		readed >> x;
+		readed >> y;
+		Settings confX = settings.write["session"][name+"X"];
+		confX->Integer() = boost::lexical_cast<int>(x);
+		Settings confY = settings.write["session"][name+"Y"];
+		confY->Integer() = boost::lexical_cast<int>(y);
+	}
 	else if(cn == "setBattleAI")
 	{
 		std::string fname;
