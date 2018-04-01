@@ -34,7 +34,7 @@
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapObjects/MiscObjects.h"
 
-InfoBox::InfoBox(Point position, InfoPos Pos, InfoSize Size, IInfoBoxData *Data):
+InfoBox::InfoBox(Point position, InfoPos Pos, InfoSize Size, std::shared_ptr<IInfoBoxData> Data):
 	size(Size),
 	infoPos(Pos),
 	data(Data),
@@ -45,44 +45,43 @@ InfoBox::InfoBox(Point position, InfoPos Pos, InfoSize Size, IInfoBoxData *Data)
 	addUsedEvents(LCLICK | RCLICK);
 	EFonts font = (size < SIZE_MEDIUM)? FONT_SMALL: FONT_MEDIUM;
 
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	pos+=position;
 
-	image = new CAnimImage(data->getImageName(size), data->getImageIndex());
+	image = std::make_shared<CAnimImage>(data->getImageName(size), data->getImageIndex());
 	pos = image->pos;
 
-	if (infoPos == POS_CORNER)
-		value = new CLabel(pos.w, pos.h, font, BOTTOMRIGHT, Colors::WHITE, data->getValueText());
-
-	if (infoPos == POS_INSIDE)
-		value = new CLabel(pos.w/2, pos.h-6, font, CENTER, Colors::WHITE, data->getValueText());
-
-	if (infoPos == POS_UP_DOWN || infoPos == POS_DOWN)
-		value = new CLabel(pos.w/2, pos.h+8, font, CENTER, Colors::WHITE, data->getValueText());
-
-	if (infoPos == POS_UP_DOWN)
-		name = new CLabel(pos.w/2, -12, font, CENTER, Colors::WHITE, data->getNameText());
-
-	if (infoPos == POS_RIGHT)
+	switch(infoPos)
 	{
-		name = new CLabel(pos.w+6, 6, font, TOPLEFT, Colors::WHITE, data->getNameText());
-		value = new CLabel(pos.w+6, pos.h-16, font, TOPLEFT, Colors::WHITE, data->getValueText());
+	case POS_CORNER:
+		value = std::make_shared<CLabel>(pos.w, pos.h, font, BOTTOMRIGHT, Colors::WHITE, data->getValueText());
+		break;
+	case POS_INSIDE:
+		value = std::make_shared<CLabel>(pos.w/2, pos.h-6, font, CENTER, Colors::WHITE, data->getValueText());
+		break;
+	case POS_UP_DOWN:
+		name = std::make_shared<CLabel>(pos.w/2, -12, font, CENTER, Colors::WHITE, data->getNameText());
+		FALLTHROUGH;
+	case POS_DOWN:
+		value = std::make_shared<CLabel>(pos.w/2, pos.h+8, font, CENTER, Colors::WHITE, data->getValueText());
+		break;
+	case POS_RIGHT:
+		name = std::make_shared<CLabel>(pos.w+6, 6, font, TOPLEFT, Colors::WHITE, data->getNameText());
+		value = std::make_shared<CLabel>(pos.w+6, pos.h-16, font, TOPLEFT, Colors::WHITE, data->getValueText());
+		break;
 	}
-	pos = image->pos;
-	if (name)
+
+	if(name)
 		pos = pos | name->pos;
-	if (value)
+	if(value)
 		pos = pos | value->pos;
 
-	hover = new CHoverableArea();
+	hover = std::make_shared<CHoverableArea>();
 	hover->hoverText = data->getHoverText();
 	hover->pos = pos;
 }
 
-InfoBox::~InfoBox()
-{
-	delete data;
-}
+InfoBox::~InfoBox() = default;
 
 void InfoBox::clickRight(tribool down, bool previousState)
 {
@@ -123,13 +122,13 @@ void InfoBox::update()
 }
 */
 
-IInfoBoxData::IInfoBoxData(InfoType Type):
-	type(Type)
+IInfoBoxData::IInfoBoxData(InfoType Type)
+	: type(Type)
 {
 }
 
-InfoBoxAbstractHeroData::InfoBoxAbstractHeroData(InfoType Type):
-	IInfoBoxData(Type)
+InfoBoxAbstractHeroData::InfoBoxAbstractHeroData(InfoType Type)
+	: IInfoBoxData(Type)
 {
 }
 
@@ -255,40 +254,39 @@ size_t InfoBoxAbstractHeroData::getImageIndex()
 	}
 }
 
-bool InfoBoxAbstractHeroData::prepareMessage(std::string &text, CComponent **comp)
+void InfoBoxAbstractHeroData::prepareMessage(std::string & text, CComponent ** comp)
 {
 	switch (type)
 	{
 	case HERO_SPECIAL:
 		text = CGI->heroh->heroes[getSubID()]->specDescr;
 		*comp = nullptr;
-		return true;
+		break;
 	case HERO_PRIMARY_SKILL:
 		text = CGI->generaltexth->arraytxt[2+getSubID()];
 		*comp =new CComponent(CComponent::primskill, getSubID(), getValue());
-		return true;
+		break;
 	case HERO_MANA:
 		text = CGI->generaltexth->allTexts[149];
 		*comp = nullptr;
-		return true;
+		break;
 	case HERO_EXPERIENCE:
 		text = CGI->generaltexth->allTexts[241];
 		*comp = nullptr;
-		return true;
+		break;
 	case HERO_SECONDARY_SKILL:
 		{
 			si64 value = getValue();
 			int  subID = getSubID();
-			if (!value)
-				return false;
-
-			text = CGI->skillh->skillInfo(subID, value);
-			*comp = new CComponent(CComponent::secskill, subID, value);
-			return true;
+			if(value)
+			{
+				text = CGI->skillh->skillInfo(subID, value);
+				*comp = new CComponent(CComponent::secskill, subID, value);
+			}
+			break;
 		}
 	default:
-		assert(0);
-		return false;
+		break;
 	}
 }
 
@@ -388,7 +386,7 @@ std::string InfoBoxHeroData::getValueText()
 	return InfoBoxAbstractHeroData::getValueText();
 }
 
-bool InfoBoxHeroData::prepareMessage(std::string &text, CComponent**comp)
+void InfoBoxHeroData::prepareMessage(std::string & text, CComponent ** comp)
 {
 	switch(type)
 	{
@@ -398,18 +396,18 @@ bool InfoBoxHeroData::prepareMessage(std::string &text, CComponent**comp)
 		boost::replace_first(text, "%d", boost::lexical_cast<std::string>(hero->mana));
 		boost::replace_first(text, "%d", boost::lexical_cast<std::string>(hero->manaLimit()));
 		*comp = nullptr;
-		return true;
-
+		break;
 	case HERO_EXPERIENCE:
 		text = CGI->generaltexth->allTexts[2];
 		boost::replace_first(text, "%d", boost::lexical_cast<std::string>(hero->level));
 		boost::replace_first(text, "%d", boost::lexical_cast<std::string>(CGI->heroh->reqExp(hero->level+1)));
 		boost::replace_first(text, "%d", boost::lexical_cast<std::string>(hero->exp));
 		*comp = nullptr;
-		return true;
+		break;
 
 	default:
-		return InfoBoxAbstractHeroData::prepareMessage(text, comp);
+		InfoBoxAbstractHeroData::prepareMessage(text, comp);
+		break;
 	}
 }
 
@@ -465,13 +463,12 @@ std::string InfoBoxCustom::getValueText()
 	return valueText;
 }
 
-bool InfoBoxCustom::prepareMessage(std::string &text, CComponent **comp)
+void InfoBoxCustom::prepareMessage(std::string & text, CComponent ** comp)
 {
-	return false;
 }
 
-CKingdomInterface::CKingdomInterface():
-    CWindowObject(PLAYER_COLORED | BORDERED, conf.go()->ac.overviewBg)
+CKingdomInterface::CKingdomInterface()
+	: CWindowObject(PLAYER_COLORED | BORDERED, conf.go()->ac.overviewBg)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	ui32 footerPos = conf.go()->ac.overviewSize * 116;
@@ -539,14 +536,14 @@ void CKingdomInterface::generateObjectsList(const std::vector<const CGObjectInst
 	                             Point(740,44), Point(0,57), dwellSize, visibleObjects.size());
 }
 
-CIntObject* CKingdomInterface::createOwnedObject(size_t index)
+CIntObject * CKingdomInterface::createOwnedObject(size_t index)
 {
-	if (index < objects.size())
+	if(index < objects.size())
 	{
-		OwnedObjectInfo &obj = objects[index];
+		OwnedObjectInfo & obj = objects[index];
 		std::string value = boost::lexical_cast<std::string>(obj.count);
-		return new InfoBox(Point(), InfoBox::POS_CORNER, InfoBox::SIZE_SMALL,
-			   new InfoBoxCustom(value,"", "FLAGPORT", obj.imageID, obj.hoverText));
+		auto data = std::make_shared<InfoBoxCustom>(value, "", "FLAGPORT", obj.imageID, obj.hoverText);
+		return new InfoBox(Point(), InfoBox::POS_CORNER, InfoBox::SIZE_SMALL, data);
 	}
 	return nullptr;
 }
@@ -596,11 +593,11 @@ void CKingdomInterface::generateMinesList(const std::vector<const CGObjectInstan
 	{
 		totalIncome += town->dailyIncome()[Res::GOLD];
 	}
-	for (int i=0; i<7; i++)
+	for(int i=0; i<7; i++)
 	{
 		std::string value = boost::lexical_cast<std::string>(minesCount[i]);
-		minesBox[i] = new InfoBox(Point(20+i*80, 31+footerPos), InfoBox::POS_INSIDE, InfoBox::SIZE_SMALL,
-		              new InfoBoxCustom(value, "", "OVMINES", i, CGI->generaltexth->mines[i].first));
+		auto data = std::make_shared<InfoBoxCustom>(value, "", "OVMINES", i, CGI->generaltexth->mines[i].first);
+		minesBox[i] = new InfoBox(Point(20+i*80, 31+footerPos), InfoBox::POS_INSIDE, InfoBox::SIZE_SMALL, data);
 
 		minesBox[i]->removeUsedEvents(LCLICK|RCLICK); //fixes #890 - mines boxes ignore clicks
 	}
@@ -780,29 +777,29 @@ CIntObject* CKingdTownList::createTownItem(size_t index)
 		return new CAnimImage("OVSLOT", (index-2) % picCount );
 }
 
-CTownItem::CTownItem(const CGTownInstance* Town):
-	town(Town)
+CTownItem::CTownItem(const CGTownInstance * Town)
+	: town(Town)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	background =  new CAnimImage("OVSLOT", 6);
-	name = new CLabel(74, 8, FONT_SMALL, TOPLEFT, Colors::WHITE, town->name);
+	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	background = std::make_shared<CAnimImage>("OVSLOT", 6);
+	name = std::make_shared<CLabel>(74, 8, FONT_SMALL, TOPLEFT, Colors::WHITE, town->name);
 
-	income = new CLabel( 190, 60, FONT_SMALL, CENTER, Colors::WHITE, boost::lexical_cast<std::string>(town->dailyIncome()[Res::GOLD]));
-	hall = new CTownInfo( 69, 31, town, true);
-	fort = new CTownInfo(111, 31, town, false);
+	income = std::make_shared<CLabel>( 190, 60, FONT_SMALL, CENTER, Colors::WHITE, boost::lexical_cast<std::string>(town->dailyIncome()[Res::GOLD]));
+	hall = std::make_shared<CTownInfo>( 69, 31, town, true);
+	fort = std::make_shared<CTownInfo>(111, 31, town, false);
 
-	garr = new CGarrisonInt(313, 3, 4, Point(232,0),  nullptr, Point(313,2), town->getUpperArmy(), town->visitingHero, true, true, true);
-	heroes = new HeroSlots(town, Point(244,6), Point(475,6), garr, false);
+	garr = std::make_shared<CGarrisonInt>(313, 3, 4, Point(232,0), nullptr, Point(313,2), town->getUpperArmy(), town->visitingHero, true, true, true);
+	heroes = std::make_shared<HeroSlots>(town, Point(244,6), Point(475,6), garr.get(), false);
 
 	size_t iconIndex = town->town->clientInfo.icons[town->hasFort()][town->builded >= CGI->modh->settings.MAX_BUILDING_PER_TURN];
 
-	picture = new CAnimImage("ITPT", iconIndex, 0, 5, 6);
-	new LRClickableAreaOpenTown(Rect(5, 6, 58, 64), town);
+	picture = std::make_shared<CAnimImage>("ITPT", iconIndex, 0, 5, 6);
+	openTown = std::make_shared<LRClickableAreaOpenTown>(Rect(5, 6, 58, 64), town);
 
-	for (size_t i=0; i<town->creatures.size(); i++)
+	for(size_t i=0; i<town->creatures.size(); i++)
 	{
-		growth.push_back(new CCreaInfo(Point(401+37*i, 78), town, i, true, true));
-		available.push_back(new CCreaInfo(Point(48+37*i, 78), town, i, true, false));
+		growth.push_back(std::make_shared<CCreaInfo>(Point(401+37*i, 78), town, i, true, true));
+		available.push_back(std::make_shared<CCreaInfo>(Point(48+37*i, 78), town, i, true, false));
 	}
 }
 
@@ -940,25 +937,31 @@ CHeroItem::CHeroItem(const CGHeroInstance* Hero):
 	name = new CLabel(73, 7, FONT_SMALL, TOPLEFT, Colors::WHITE, hero->name);
 	artsText = new CLabel(320, 55, FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth->overview[2]);
 
-	for (size_t i=0; i<GameConstants::PRIMARY_SKILLS; i++)
-		heroInfo.push_back(new InfoBox(Point(78+i*36, 26), InfoBox::POS_DOWN, InfoBox::SIZE_SMALL,
-		                   new InfoBoxHeroData(IInfoBoxData::HERO_PRIMARY_SKILL, hero, i)));
+	for(size_t i=0; i<GameConstants::PRIMARY_SKILLS; i++)
+	{
+		auto data = std::make_shared<InfoBoxHeroData>(IInfoBoxData::HERO_PRIMARY_SKILL, hero, i);
+		heroInfo.push_back(new InfoBox(Point(78+i*36, 26), InfoBox::POS_DOWN, InfoBox::SIZE_SMALL, data));
+	}
 
-	for (size_t i=0; i<GameConstants::SKILL_PER_HERO; i++)
-		heroInfo.push_back(new InfoBox(Point(410+i*36, 5), InfoBox::POS_NONE, InfoBox::SIZE_SMALL,
-		                   new InfoBoxHeroData(IInfoBoxData::HERO_SECONDARY_SKILL, hero, i)));
+	for(size_t i=0; i<GameConstants::SKILL_PER_HERO; i++)
+	{
+		auto data = std::make_shared<InfoBoxHeroData>(IInfoBoxData::HERO_SECONDARY_SKILL, hero, i);
+		heroInfo.push_back(new InfoBox(Point(410+i*36, 5), InfoBox::POS_NONE, InfoBox::SIZE_SMALL, data));
+	}
 
-	heroInfo.push_back(new InfoBox(Point(375, 5), InfoBox::POS_NONE, InfoBox::SIZE_SMALL,
-	                   new InfoBoxHeroData(IInfoBoxData::HERO_SPECIAL, hero)));
+	{
+		auto data = std::make_shared<InfoBoxHeroData>(IInfoBoxData::HERO_SPECIAL, hero);
+		heroInfo.push_back(new InfoBox(Point(375, 5), InfoBox::POS_NONE, InfoBox::SIZE_SMALL, data));
 
-	heroInfo.push_back(new InfoBox(Point(330, 5), InfoBox::POS_INSIDE, InfoBox::SIZE_SMALL,
-	                   new InfoBoxHeroData(IInfoBoxData::HERO_EXPERIENCE, hero)));
+		data = std::make_shared<InfoBoxHeroData>(IInfoBoxData::HERO_EXPERIENCE, hero);
+		heroInfo.push_back(new InfoBox(Point(330, 5), InfoBox::POS_INSIDE, InfoBox::SIZE_SMALL, data));
 
-	heroInfo.push_back(new InfoBox(Point(280, 5), InfoBox::POS_INSIDE, InfoBox::SIZE_SMALL,
-	                   new InfoBoxHeroData(IInfoBoxData::HERO_MANA, hero)));
+		data = std::make_shared<InfoBoxHeroData>(IInfoBoxData::HERO_MANA, hero);
+		heroInfo.push_back(new InfoBox(Point(280, 5), InfoBox::POS_INSIDE, InfoBox::SIZE_SMALL, data));
+	}
 
 	morale = new MoraleLuckBox(true, Rect(225, 53, 30, 22), true);
-	luck  = new MoraleLuckBox(false, Rect(225, 28, 30, 22), true);
+	luck = new MoraleLuckBox(false, Rect(225, 28, 30, 22), true);
 
 	morale->set(hero);
 	luck->set(hero);

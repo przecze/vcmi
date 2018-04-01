@@ -61,16 +61,16 @@ public:
 
 private:
 	InfoSize size;
-	InfoPos  infoPos;
-	IInfoBoxData *data;
+	InfoPos infoPos;
+	std::shared_ptr<IInfoBoxData> data;
 
-	CLabel * value;
-	CLabel * name;
-	CAnimImage * image;
-	CHoverableArea *hover;
+	std::shared_ptr<CLabel> value;
+	std::shared_ptr<CLabel> name;
+	std::shared_ptr<CAnimImage> image;
+	std::shared_ptr<CHoverableArea> hover;
 
 public:
-	InfoBox(Point position, InfoPos Pos, InfoSize Size, IInfoBoxData *Data);
+	InfoBox(Point position, InfoPos Pos, InfoSize Size, std::shared_ptr<IInfoBoxData> Data);
 	~InfoBox();
 
 	void clickRight(tribool down, bool previousState) override;
@@ -106,7 +106,7 @@ public:
 	virtual size_t getImageIndex()=0;
 
 	//TODO: replace with something better
-	virtual bool prepareMessage(std::string &text, CComponent **comp)=0;
+	virtual void prepareMessage(std::string &text, CComponent **comp)=0;
 
 	virtual ~IInfoBoxData(){};
 };
@@ -126,7 +126,7 @@ public:
 	std::string getHoverText() override;
 	size_t getImageIndex() override;
 
-	bool prepareMessage(std::string &text, CComponent **comp) override;
+	void prepareMessage(std::string &text, CComponent **comp) override;
 };
 
 class InfoBoxHeroData : public InfoBoxAbstractHeroData
@@ -144,7 +144,7 @@ public:
 	std::string getHoverText() override;
 	std::string getValueText() override;
 
-	bool prepareMessage(std::string &text, CComponent **comp) override;
+	void prepareMessage(std::string &text, CComponent **comp) override;
 };
 
 class InfoBoxCustomHeroData : public InfoBoxAbstractHeroData
@@ -176,7 +176,7 @@ public:
 	std::string getHoverText() override;
 	size_t getImageIndex() override;
 
-	bool prepareMessage(std::string &text, CComponent **comp) override;
+	void prepareMessage(std::string &text, CComponent **comp) override;
 };
 
 //TODO!!!
@@ -259,21 +259,25 @@ public:
 /// List item with town
 class CTownItem : public CIntObject, public CGarrisonHolder
 {
-	CAnimImage *background;
-	CAnimImage *picture;
-	CLabel *name;
-	CLabel *income;
-	CGarrisonInt *garr;
+	std::shared_ptr<CAnimImage> background;
+	std::shared_ptr<CAnimImage> picture;
+	std::shared_ptr<CLabel> name;
+	std::shared_ptr<CLabel> income;
+	std::shared_ptr<CGarrisonInt> garr;
 
-	HeroSlots *heroes;
-	CTownInfo *hall, *fort;
-	std::vector<CCreaInfo*> available;
-	std::vector<CCreaInfo*> growth;
+	std::shared_ptr<HeroSlots> heroes;
+	std::shared_ptr<CTownInfo> hall;
+	std::shared_ptr<CTownInfo> fort;
+
+	std::vector<std::shared_ptr<CCreaInfo>> available;
+	std::vector<std::shared_ptr<CCreaInfo>> growth;
+
+	std::shared_ptr<LRClickableAreaOpenTown> openTown;
 
 public:
 	const CGTownInstance * town;
 
-	CTownItem(const CGTownInstance* town);
+	CTownItem(const CGTownInstance * Town);
 
 	void updateGarrisons() override;
 	void update();
@@ -303,9 +307,9 @@ class CHeroItem : public CIntObject, public CWindowWithGarrison
 	void onTabDeselected(CIntObject *object);
 
 public:
-	CArtifactsOfHero *heroArts;
+	CArtifactsOfHero * heroArts;
 
-	CHeroItem(const CGHeroInstance* hero);
+	CHeroItem(const CGHeroInstance * hero);
 };
 
 /// Tab with all hero-specific data

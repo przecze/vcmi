@@ -56,7 +56,6 @@ class CHeroWindow: public CWindowObject, public CWindowWithGarrison, public CWin
 	CGStatusBar * ourBar; //heroWindow's statusBar
 
 	//buttons
-	//CButton * gar4button; //splitting
 	std::vector<CHeroSwitcher *> heroList; //list of heroes
 	CPicture * listSelection; //selection border
 

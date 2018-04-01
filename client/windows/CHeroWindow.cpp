@@ -66,8 +66,8 @@ int64_t CHeroWithMaybePickedArtifact::getTreeVersion() const
 	return hero->getTreeVersion();  //this assumes that hero and artifact belongs to main bonus tree
 }
 
-CHeroWithMaybePickedArtifact::CHeroWithMaybePickedArtifact(CWindowWithArtifacts *Cww, const CGHeroInstance *Hero)
-	:  hero(Hero), cww(Cww)
+CHeroWithMaybePickedArtifact::CHeroWithMaybePickedArtifact(CWindowWithArtifacts * Cww, const CGHeroInstance * Hero)
+	: hero(Hero), cww(Cww)
 {
 }
 
@@ -81,8 +81,8 @@ void CHeroSwitcher::clickLeft(tribool down, bool previousState)
 	}
 }
 
-CHeroSwitcher::CHeroSwitcher(Point _pos, const CGHeroInstance * _hero):
-	hero(_hero)
+CHeroSwitcher::CHeroSwitcher(Point _pos, const CGHeroInstance * _hero)
+	: hero(_hero)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	pos += _pos;
