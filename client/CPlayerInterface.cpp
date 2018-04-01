@@ -908,8 +908,7 @@ void CPlayerInterface::battleEnd(const BattleResult *br)
 
 		if (!battleInt)
 		{
-			SDL_Rect temp_rect = genRect(561, 470, (screen->w - 800)/2 + 165, (screen->h - 600)/2 + 19);
-			auto   resWindow = new CBattleResultWindow(*br, temp_rect, *this);
+			auto resWindow = new CBattleResultWindow(*br, *this);
 			GH.pushInt(resWindow);
 			// #1490 - during AI turn when quick combat is on, we need to display the message and wait for user to close it.
 			// Otherwise NewTurn causes freeze.

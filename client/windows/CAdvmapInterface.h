@@ -102,7 +102,6 @@ class CResDataBar : public CIntObject
 {
 public:
 	std::shared_ptr<CPicture> background;
-	std::shared_ptr<CLabel> date;
 
 	std::vector<std::pair<int,int> > txtpos;
 	std::string datetext;
