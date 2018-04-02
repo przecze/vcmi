@@ -839,9 +839,9 @@ void CCastleBuildings::enterCastleGate()
 			availableTowns.push_back(t->id.getNum());//add to the list
 		}
 	}
-	auto gateIcon = new CAnimImage(town->town->clientInfo.buildingsIcons, BuildingID::CASTLE_GATE);//will be deleted by selection window
-	GH.pushInt (new CObjectListWindow(availableTowns, gateIcon, CGI->generaltexth->jktexts[40],
-	    CGI->generaltexth->jktexts[41], std::bind (&CCastleInterface::castleTeleport, LOCPLINT->castleInt, _1)));
+	auto gateIcon = std::make_shared<CAnimImage>(town->town->clientInfo.buildingsIcons, BuildingID::CASTLE_GATE);//will be deleted by selection window
+	GH.pushInt(new CObjectListWindow(availableTowns, gateIcon, CGI->generaltexth->jktexts[40],
+		CGI->generaltexth->jktexts[41], std::bind (&CCastleInterface::castleTeleport, LOCPLINT->castleInt, _1)));
 }
 
 void CCastleBuildings::enterDwelling(int level)

@@ -65,18 +65,18 @@ using namespace CSDL_Ext;
 std::list<CFocusable*> CFocusable::focusables;
 CFocusable * CFocusable::inputWithFocus;
 
-CRecruitmentWindow::CCreatureCard::CCreatureCard(CRecruitmentWindow *window, const CCreature *crea, int totalAmount):
-	CIntObject(LCLICK | RCLICK),
+CRecruitmentWindow::CCreatureCard::CCreatureCard(CRecruitmentWindow * window, const CCreature * crea, int totalAmount)
+	: CIntObject(LCLICK | RCLICK),
 	parent(window),
 	selected(false),
 	creature(crea),
 	amount(totalAmount)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	pic = new CCreaturePic(1,1, creature, true, true);
+	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	animation = std::make_shared<CCreaturePic>(1, 1, creature, true, true);
 	// 1 + 1 px for borders
-	pos.w = pic->pos.w + 2;
-	pos.h = pic->pos.h + 2;
+	pos.w = animation->pos.w + 2;
+	pos.h = animation->pos.h + 2;
 }
 
 void CRecruitmentWindow::CCreatureCard::select(bool on)
@@ -87,40 +87,39 @@ void CRecruitmentWindow::CCreatureCard::select(bool on)
 
 void CRecruitmentWindow::CCreatureCard::clickLeft(tribool down, bool previousState)
 {
-	if (down)
-		parent->select(this);
+	if(down)
+		parent->select(this->shared_from_this());
 }
 
 void CRecruitmentWindow::CCreatureCard::clickRight(tribool down, bool previousState)
 {
-	if (down)
+	if(down)
 		GH.pushInt(new CStackWindow(creature, true));
 }
 
 void CRecruitmentWindow::CCreatureCard::showAll(SDL_Surface * to)
 {
 	CIntObject::showAll(to);
-	if (selected)
+	if(selected)
 		drawBorder(to, pos, int3(248, 0, 0));
 	else
 		drawBorder(to, pos, int3(232, 212, 120));
 }
 
-
-void CRecruitmentWindow::select(CCreatureCard *card)
+void CRecruitmentWindow::select(std::shared_ptr<CCreatureCard> card)
 {
-	if (card == selected)
+	if(card == selected)
 		return;
 
-	if (selected)
+	if(selected)
 		selected->select(false);
 
 	selected = card;
 
-	if (selected)
+	if(selected)
 		selected->select(true);
 
-	if (card)
+	if(card)
 	{
 		si32 maxAmount = card->creature->maxAmount(LOCPLINT->cb->getResourceAmount());
 
@@ -192,7 +191,7 @@ void CRecruitmentWindow::showAll(SDL_Surface * to)
 	drawBorder(to, pos.x + 289, pos.y + 312, 66, 34, int3(173,142,66));
 }
 
-CRecruitmentWindow::CRecruitmentWindow(const CGDwelling *Dwelling, int Level, const CArmedInstance *Dst, const std::function<void(CreatureID,int)> &Recruit, int y_offset):
+CRecruitmentWindow::CRecruitmentWindow(const CGDwelling * Dwelling, int Level, const CArmedInstance * Dst, const std::function<void(CreatureID,int)> & Recruit, int y_offset):
 	CWindowObject(PLAYER_COLORED, "TPRCRT"),
 	onRecruit(Recruit),
 	level(Level),
@@ -202,43 +201,40 @@ CRecruitmentWindow::CRecruitmentWindow(const CGDwelling *Dwelling, int Level, co
 {
 	moveBy(Point(0, y_offset));
 
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	new CGStatusBar(new CPicture(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
+	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
-	slider = new CSlider(Point(176,279),135,std::bind(&CRecruitmentWindow::sliderMoved,this, _1),0,0,0,true);
+	statusBar = std::make_shared<CGStatusBar>(new CPicture(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 
-	maxButton = new CButton(Point(134, 313), "IRCBTNS.DEF", CGI->generaltexth->zelp[553], std::bind(&CSlider::moveToMax,slider), SDLK_m);
-	buyButton = new CButton(Point(212, 313), "IBY6432.DEF", CGI->generaltexth->zelp[554], std::bind(&CRecruitmentWindow::buy,this), SDLK_RETURN);
-	cancelButton = new CButton(Point(290, 313), "ICN6432.DEF", CGI->generaltexth->zelp[555], std::bind(&CRecruitmentWindow::close,this), SDLK_ESCAPE);
+	slider = std::make_shared<CSlider>(Point(176,279),135,std::bind(&CRecruitmentWindow::sliderMoved,this, _1),0,0,0,true);
 
-	title = new CLabel(243, 32, FONT_BIG, CENTER, Colors::YELLOW);
-	availableValue = new CLabel(205, 253, FONT_SMALL, CENTER, Colors::WHITE);
-	toRecruitValue = new CLabel(279, 253, FONT_SMALL, CENTER, Colors::WHITE);
+	maxButton = std::make_shared<CButton>(Point(134, 313), "IRCBTNS.DEF", CGI->generaltexth->zelp[553], std::bind(&CSlider::moveToMax, slider), SDLK_m);
+	buyButton = std::make_shared<CButton>(Point(212, 313), "IBY6432.DEF", CGI->generaltexth->zelp[554], std::bind(&CRecruitmentWindow::buy, this), SDLK_RETURN);
+	cancelButton = std::make_shared<CButton>(Point(290, 313), "ICN6432.DEF", CGI->generaltexth->zelp[555], std::bind(&CRecruitmentWindow::close, this), SDLK_ESCAPE);
 
-	costPerTroopValue =  new CreatureCostBox(Rect(65, 222, 97, 74), CGI->generaltexth->allTexts[346]);
-	totalCostValue = new CreatureCostBox(Rect(323, 222, 97, 74), CGI->generaltexth->allTexts[466]);
+	title = std::make_shared<CLabel>(243, 32, FONT_BIG, CENTER, Colors::YELLOW);
+	availableValue = std::make_shared<CLabel>(205, 253, FONT_SMALL, CENTER, Colors::WHITE);
+	toRecruitValue = std::make_shared<CLabel>(279, 253, FONT_SMALL, CENTER, Colors::WHITE);
 
-	new CLabel(205, 233, FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth->allTexts[465]); //available t
-	new CLabel(279, 233, FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth->allTexts[16]); //recruit t
+	costPerTroopValue = std::make_shared<CreatureCostBox>(Rect(65, 222, 97, 74), CGI->generaltexth->allTexts[346]);
+	totalCostValue = std::make_shared<CreatureCostBox>(Rect(323, 222, 97, 74), CGI->generaltexth->allTexts[466]);
+
+	availableTitle = std::make_shared<CLabel>(205, 233, FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth->allTexts[465]);
+	toRecruitTitle = std::make_shared<CLabel>(279, 233, FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth->allTexts[16]);
 
 	availableCreaturesChanged();
 }
 
 void CRecruitmentWindow::availableCreaturesChanged()
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
 
 	size_t selectedIndex = 0;
 
-	if (!cards.empty() && selected) // find position of selected item
+	if(!cards.empty() && selected) // find position of selected item
 		selectedIndex = std::find(cards.begin(), cards.end(), selected) - cards.begin();
 
-	//deselect card
 	select(nullptr);
 
-	//delete old cards
-	for(auto & card : cards)
-		delete card;
 	cards.clear();
 
 	for(int i=0; i<dwelling->creatures.size(); i++)
@@ -251,10 +247,8 @@ void CRecruitmentWindow::availableCreaturesChanged()
 
 		//create new cards
 		for(auto & creature : boost::adaptors::reverse(dwelling->creatures[i].second))
-			cards.push_back(new CCreatureCard(this, CGI->creh->creatures[creature], amount));
+			cards.push_back(std::make_shared<CCreatureCard>(this, CGI->creh->creatures[creature], amount));
 	}
-
-	assert(!cards.empty());
 
 	const int creatureWidth = 102;
 
@@ -292,7 +286,7 @@ void CRecruitmentWindow::availableCreaturesChanged()
 
 void CRecruitmentWindow::sliderMoved(int to)
 {
-	if (!selected)
+	if(!selected)
 		return;
 
 	buyButton->block(!to);
@@ -302,29 +296,27 @@ void CRecruitmentWindow::sliderMoved(int to)
 	totalCostValue->set(selected->creature->cost * to);
 }
 
-CSplitWindow::CSplitWindow(const CCreature * creature, std::function<void(int, int)> callback_,
-						   int leftMin_, int rightMin_, int leftAmount_, int rightAmount_):
-	CWindowObject(PLAYER_COLORED, "GPUCRDIV"),
+CSplitWindow::CSplitWindow(const CCreature * creature, std::function<void(int, int)> callback_, int leftMin_, int rightMin_, int leftAmount_, int rightAmount_)
+	: CWindowObject(PLAYER_COLORED, "GPUCRDIV"),
 	callback(callback_),
 	leftAmount(leftAmount_),
 	rightAmount(rightAmount_),
 	leftMin(leftMin_),
-	rightMin(rightMin_),
-	slider(nullptr)
+	rightMin(rightMin_)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
 	int total = leftAmount + rightAmount;
 	int leftMax = total - rightMin;
 	int rightMax = total - leftMin;
 
-	ok = new CButton(Point(20, 263), "IOK6432", CButton::tooltip(), std::bind(&CSplitWindow::apply, this), SDLK_RETURN);
-	cancel = new CButton(Point(214, 263), "ICN6432", CButton::tooltip(), std::bind(&CSplitWindow::close, this), SDLK_ESCAPE);
+	ok = std::make_shared<CButton>(Point(20, 263), "IOK6432", CButton::tooltip(), std::bind(&CSplitWindow::apply, this), SDLK_RETURN);
+	cancel = std::make_shared<CButton>(Point(214, 263), "ICN6432", CButton::tooltip(), std::bind(&CSplitWindow::close, this), SDLK_ESCAPE);
 
-	int sliderPositions = total - leftMin - rightMin;
+	int sliderPosition = total - leftMin - rightMin;
 
-	leftInput = new CTextInput(Rect(20, 218, 100, 36), FONT_BIG, std::bind(&CSplitWindow::setAmountText, this, _1, true));
-	rightInput = new CTextInput(Rect(176, 218, 100, 36), FONT_BIG, std::bind(&CSplitWindow::setAmountText, this, _1, false));
+	leftInput = std::make_shared<CTextInput>(Rect(20, 218, 100, 36), FONT_BIG, std::bind(&CSplitWindow::setAmountText, this, _1, true));
+	rightInput = std::make_shared<CTextInput>(Rect(176, 218, 100, 36), FONT_BIG, std::bind(&CSplitWindow::setAmountText, this, _1, false));
 
 	//add filters to allow only number input
 	leftInput->filters += std::bind(&CTextInput::numberFilter, _1, _2, leftMin, leftMax);
@@ -333,20 +325,20 @@ CSplitWindow::CSplitWindow(const CCreature * creature, std::function<void(int, i
 	leftInput->setText(boost::lexical_cast<std::string>(leftAmount), false);
 	rightInput->setText(boost::lexical_cast<std::string>(rightAmount), false);
 
-	animLeft = new CCreaturePic(20, 54, creature, true, false);
-	animRight = new CCreaturePic(177, 54,creature, true, false);
+	animLeft = std::make_shared<CCreaturePic>(20, 54, creature, true, false);
+	animRight = std::make_shared<CCreaturePic>(177, 54,creature, true, false);
 
-	slider = new CSlider(Point(21, 194), 257, std::bind(&CSplitWindow::sliderMoved, this, _1), 0, sliderPositions, rightAmount - rightMin, true);
+	slider = std::make_shared<CSlider>(Point(21, 194), 257, std::bind(&CSplitWindow::sliderMoved, this, _1), 0, sliderPosition, rightAmount - rightMin, true);
 
-	std::string title = CGI->generaltexth->allTexts[256];
-	boost::algorithm::replace_first(title,"%s", creature->namePl);
-	new CLabel(150, 34, FONT_BIG, CENTER, Colors::YELLOW, title);
+	std::string titleStr = CGI->generaltexth->allTexts[256];
+	boost::algorithm::replace_first(titleStr,"%s", creature->namePl);
+	title = std::make_shared<CLabel>(150, 34, FONT_BIG, CENTER, Colors::YELLOW, titleStr);
 }
 
 void CSplitWindow::setAmountText(std::string text, bool left)
 {
 	int amount = 0;
-	if (text.length())
+	if(text.length())
 	{
 		try
 		{
@@ -358,7 +350,7 @@ void CSplitWindow::setAmountText(std::string text, bool left)
 		}
 
 		int total = leftAmount + rightAmount;
-		if (amount > total)
+		if(amount > total)
 			amount = total;
 	}
 
@@ -387,46 +379,40 @@ void CSplitWindow::sliderMoved(int to)
 	setAmount(rightMin + to, false);
 }
 
-CLevelWindow::CLevelWindow(const CGHeroInstance *hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill> &skills, std::function<void(ui32)> callback):
+CLevelWindow::CLevelWindow(const CGHeroInstance * hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill> & skills, std::function<void(ui32)> callback):
 	CWindowObject(PLAYER_COLORED, "LVLUPBKG"),
 	cb(callback)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
 	LOCPLINT->showingDialog->setn(true);
 
-	new CAnimImage("PortraitsLarge", hero->portrait, 0, 170, 66);
-	new CButton(Point(297, 413), "IOKAY",  CButton::tooltip(), std::bind(&CLevelWindow::close, this), SDLK_RETURN);
+	portrait = std::make_shared<CAnimImage>("PortraitsLarge", hero->portrait, 0, 170, 66);
+	ok = std::make_shared<CButton>(Point(297, 413), "IOKAY", CButton::tooltip(), std::bind(&CLevelWindow::close, this), SDLK_RETURN);
 
 	//%s has gained a level.
-	new CLabel(192, 33, FONT_MEDIUM, CENTER, Colors::WHITE,
-			   boost::str(boost::format(CGI->generaltexth->allTexts[444]) % hero->name));
+	mainTitle = std::make_shared<CLabel>(192, 33, FONT_MEDIUM, CENTER, Colors::WHITE, boost::str(boost::format(CGI->generaltexth->allTexts[444]) % hero->name));
 
 	//%s is now a level %d %s.
-	new CLabel(192, 162, FONT_MEDIUM, CENTER, Colors::WHITE,
-			   boost::str(boost::format(CGI->generaltexth->allTexts[445]) % hero->name % hero->level % hero->type->heroClass->name));
+	levelTitle == std::make_shared<CLabel>(192, 162, FONT_MEDIUM, CENTER, Colors::WHITE,
+		boost::str(boost::format(CGI->generaltexth->allTexts[445]) % hero->name % hero->level % hero->type->heroClass->name));
 
-	new CAnimImage("PSKIL42", pskill, 0, 174, 190);
+	skillIcon = std::make_shared<CAnimImage>("PSKIL42", pskill, 0, 174, 190);
 
-	new CLabel(192, 253, FONT_MEDIUM, CENTER, Colors::WHITE,
-			   CGI->generaltexth->primarySkillNames[pskill] + " +1");
+	skillValue = std::make_shared<CLabel>(192, 253, FONT_MEDIUM, CENTER, Colors::WHITE, CGI->generaltexth->primarySkillNames[pskill] + " +1");
 
-	if (!skills.empty())
+	if(!skills.empty())
 	{
 		std::vector<CSelectableComponent *> comps;
-
 		for(auto & skill : skills)
 		{
-			comps.push_back(new CSelectableComponent(
-								CComponent::secskill,
-								skill,
-								hero->getSecSkillLevel( SecondarySkill(skill) )+1,
-								CComponent::medium));
+			auto comp = new CSelectableComponent(CComponent::secskill, skill, hero->getSecSkillLevel(SecondarySkill(skill))+1, CComponent::medium);
+			comp->recActions |= DISPOSE;
+			comps.push_back(comp);
 		}
-		box = new CComponentBox(comps, Rect(75, 300, pos.w - 150, 100));
+
+		box = std::make_shared<CComponentBox>(comps, Rect(75, 300, pos.w - 150, 100));
 	}
-	else
-		box = nullptr;
 }
 
 CLevelWindow::~CLevelWindow()
@@ -450,17 +436,17 @@ static void setBoolSetting(std::string group, std::string field, bool value)
 	fullscreen->Bool() = value;
 }
 
-CSystemOptionsWindow::CSystemOptionsWindow():
-	CWindowObject(PLAYER_COLORED, "SysOpBck"),
+CSystemOptionsWindow::CSystemOptionsWindow()
+	: CWindowObject(PLAYER_COLORED, "SysOpBck"),
 	onFullscreenChanged(settings.listen["video"]["fullscreen"])
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	title = new CLabel(242, 32, FONT_BIG, CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[568]);
+	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	title = std::make_shared<CLabel>(242, 32, FONT_BIG, CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[568]);
 
 	const JsonNode & texts = CGI->generaltexth->localizedTexts["systemOptions"];
 
 	//left window section
-	leftGroup =  new CLabelGroup(FONT_MEDIUM, CENTER, Colors::YELLOW);
+	leftGroup = std::make_shared<CLabelGroup>(FONT_MEDIUM, CENTER, Colors::YELLOW);
 	leftGroup->add(122,  64, CGI->generaltexth->allTexts[569]);
 	leftGroup->add(122, 130, CGI->generaltexth->allTexts[570]);
 	leftGroup->add(122, 196, CGI->generaltexth->allTexts[571]);
@@ -469,7 +455,7 @@ CSystemOptionsWindow::CSystemOptionsWindow():
 	leftGroup->add(122, 412, CGI->generaltexth->allTexts[395]);
 
 	//right section
-	rightGroup = new CLabelGroup(FONT_MEDIUM, TOPLEFT, Colors::WHITE);
+	rightGroup = std::make_shared<CLabelGroup>(FONT_MEDIUM, TOPLEFT, Colors::WHITE);
 	rightGroup->add(282, 57,  CGI->generaltexth->allTexts[572]);
 	rightGroup->add(282, 89,  CGI->generaltexth->allTexts[573]);
 	rightGroup->add(282, 121, CGI->generaltexth->allTexts[574]);
@@ -478,82 +464,95 @@ CSystemOptionsWindow::CSystemOptionsWindow():
 	rightGroup->add(282, 217, texts["fullscreenButton"]["label"].String());
 
 	//setting up buttons
-	load = new CButton (Point(246,  298), "SOLOAD.DEF", CGI->generaltexth->zelp[321], [&](){ bloadf(); }, SDLK_l);
+	load = std::make_shared<CButton>(Point(246,  298), "SOLOAD.DEF", CGI->generaltexth->zelp[321], [&](){ bloadf(); }, SDLK_l);
 	load->setImageOrder(1, 0, 2, 3);
 
-	save = new CButton (Point(357, 298), "SOSAVE.DEF", CGI->generaltexth->zelp[322], [&](){ bsavef(); }, SDLK_s);
+	save = std::make_shared<CButton>(Point(357, 298), "SOSAVE.DEF", CGI->generaltexth->zelp[322], [&](){ bsavef(); }, SDLK_s);
 	save->setImageOrder(1, 0, 2, 3);
 
-	restart = new CButton (Point(246, 357), "SORSTRT", CGI->generaltexth->zelp[323], [&](){ brestartf(); }, SDLK_r);
+	restart = std::make_shared<CButton>(Point(246, 357), "SORSTRT", CGI->generaltexth->zelp[323], [&](){ brestartf(); }, SDLK_r);
 	restart->setImageOrder(1, 0, 2, 3);
 
-	mainMenu = new CButton (Point(357, 357), "SOMAIN.DEF", CGI->generaltexth->zelp[320], [&](){ bmainmenuf(); }, SDLK_m);
+	mainMenu = std::make_shared<CButton>(Point(357, 357), "SOMAIN.DEF", CGI->generaltexth->zelp[320], [&](){ bmainmenuf(); }, SDLK_m);
 	mainMenu->setImageOrder(1, 0, 2, 3);
 
-	quitGame = new CButton (Point(246, 415), "soquit.def", CGI->generaltexth->zelp[324], [&](){ bquitf(); }, SDLK_q);
+	quitGame = std::make_shared<CButton>(Point(246, 415), "soquit.def", CGI->generaltexth->zelp[324], [&](){ bquitf(); }, SDLK_q);
 	quitGame->setImageOrder(1, 0, 2, 3);
 
-	backToMap = new CButton ( Point(357, 415), "soretrn.def", CGI->generaltexth->zelp[325], [&](){ breturnf(); }, SDLK_RETURN);
+	backToMap = std::make_shared<CButton>( Point(357, 415), "soretrn.def", CGI->generaltexth->zelp[325], [&](){ breturnf(); }, SDLK_RETURN);
 	backToMap->setImageOrder(1, 0, 2, 3);
 	backToMap->assignedKeys.insert(SDLK_ESCAPE);
 
-	heroMoveSpeed = new CToggleGroup(0);
-	heroMoveSpeed->addToggle(1, new CToggleButton(Point( 28, 77), "sysopb1.def", CGI->generaltexth->zelp[349]));
-	heroMoveSpeed->addToggle(2, new CToggleButton(Point( 76, 77), "sysopb2.def", CGI->generaltexth->zelp[350]));
-	heroMoveSpeed->addToggle(4, new CToggleButton(Point(124, 77), "sysopb3.def", CGI->generaltexth->zelp[351]));
-	heroMoveSpeed->addToggle(8, new CToggleButton(Point(172, 77), "sysopb4.def", CGI->generaltexth->zelp[352]));
-	heroMoveSpeed->setSelected(settings["adventure"]["heroSpeed"].Float());
-	heroMoveSpeed->addCallback(std::bind(&setIntSetting, "adventure", "heroSpeed", _1));
+	heroMoveSpeed = std::make_shared<CToggleGroup>(0);
+	enemyMoveSpeed = std::make_shared<CToggleGroup>(0);
+	mapScrollSpeed = std::make_shared<CToggleGroup>(0);
 
-	enemyMoveSpeed = new CToggleGroup(0);
-	enemyMoveSpeed->addToggle(2, new CToggleButton(Point( 28, 144), "sysopb5.def", CGI->generaltexth->zelp[353]));
-	enemyMoveSpeed->addToggle(4, new CToggleButton(Point( 76, 144), "sysopb6.def", CGI->generaltexth->zelp[354]));
-	enemyMoveSpeed->addToggle(8, new CToggleButton(Point(124, 144), "sysopb7.def", CGI->generaltexth->zelp[355]));
-	enemyMoveSpeed->addToggle(0, new CToggleButton(Point(172, 144), "sysopb8.def", CGI->generaltexth->zelp[356]));
-	enemyMoveSpeed->setSelected(settings["adventure"]["enemySpeed"].Float());
-	enemyMoveSpeed->addCallback(std::bind(&setIntSetting, "adventure", "enemySpeed", _1));
+	{
+		OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255);
 
-	mapScrollSpeed = new CToggleGroup(0);
-	mapScrollSpeed->addToggle(1, new CToggleButton(Point( 28, 210), "sysopb9.def", CGI->generaltexth->zelp[357]));
-	mapScrollSpeed->addToggle(2, new CToggleButton(Point( 92, 210), "sysob10.def", CGI->generaltexth->zelp[358]));
-	mapScrollSpeed->addToggle(4, new CToggleButton(Point(156, 210), "sysob11.def", CGI->generaltexth->zelp[359]));
-	mapScrollSpeed->setSelected(settings["adventure"]["scrollSpeed"].Float());
-	mapScrollSpeed->addCallback(std::bind(&setIntSetting, "adventure", "scrollSpeed", _1));
+		heroMoveSpeed->addToggle(1, new CToggleButton(Point( 28, 77), "sysopb1.def", CGI->generaltexth->zelp[349]));
+		heroMoveSpeed->addToggle(2, new CToggleButton(Point( 76, 77), "sysopb2.def", CGI->generaltexth->zelp[350]));
+		heroMoveSpeed->addToggle(4, new CToggleButton(Point(124, 77), "sysopb3.def", CGI->generaltexth->zelp[351]));
+		heroMoveSpeed->addToggle(8, new CToggleButton(Point(172, 77), "sysopb4.def", CGI->generaltexth->zelp[352]));
+		heroMoveSpeed->setSelected(settings["adventure"]["heroSpeed"].Float());
+		heroMoveSpeed->addCallback(std::bind(&setIntSetting, "adventure", "heroSpeed", _1));
 
-	musicVolume = new CVolumeSlider(Point(29, 359), "syslb.def", CCS->musich->getVolume(), &CGI->generaltexth->zelp[326]);
+
+		enemyMoveSpeed->addToggle(2, new CToggleButton(Point( 28, 144), "sysopb5.def", CGI->generaltexth->zelp[353]));
+		enemyMoveSpeed->addToggle(4, new CToggleButton(Point( 76, 144), "sysopb6.def", CGI->generaltexth->zelp[354]));
+		enemyMoveSpeed->addToggle(8, new CToggleButton(Point(124, 144), "sysopb7.def", CGI->generaltexth->zelp[355]));
+		enemyMoveSpeed->addToggle(0, new CToggleButton(Point(172, 144), "sysopb8.def", CGI->generaltexth->zelp[356]));
+		enemyMoveSpeed->setSelected(settings["adventure"]["enemySpeed"].Float());
+		enemyMoveSpeed->addCallback(std::bind(&setIntSetting, "adventure", "enemySpeed", _1));
+
+
+		mapScrollSpeed->addToggle(1, new CToggleButton(Point( 28, 210), "sysopb9.def", CGI->generaltexth->zelp[357]));
+		mapScrollSpeed->addToggle(2, new CToggleButton(Point( 92, 210), "sysob10.def", CGI->generaltexth->zelp[358]));
+		mapScrollSpeed->addToggle(4, new CToggleButton(Point(156, 210), "sysob11.def", CGI->generaltexth->zelp[359]));
+		mapScrollSpeed->setSelected(settings["adventure"]["scrollSpeed"].Float());
+		mapScrollSpeed->addCallback(std::bind(&setIntSetting, "adventure", "scrollSpeed", _1));
+	}
+
+
+	musicVolume = std::make_shared<CVolumeSlider>(Point(29, 359), "syslb.def", CCS->musich->getVolume(), &CGI->generaltexth->zelp[326]);
 	musicVolume->addCallback(std::bind(&setIntSetting, "general", "music", _1));
 
-	effectsVolume = new CVolumeSlider(Point(29, 425), "syslb.def", CCS->soundh->getVolume(), &CGI->generaltexth->zelp[336]);
+	effectsVolume = std::make_shared<CVolumeSlider>(Point(29, 425), "syslb.def", CCS->soundh->getVolume(), &CGI->generaltexth->zelp[336]);
 	effectsVolume->addCallback(std::bind(&setIntSetting, "general", "sound", _1));
 
-	showReminder = new CToggleButton(Point(246, 87), "sysopchk.def", CGI->generaltexth->zelp[361],
-			[&] (bool value) { setBoolSetting("adventure", "heroReminder", value); });
-
-	quickCombat = new CToggleButton(Point(246, 87+32), "sysopchk.def", CGI->generaltexth->zelp[362],
-			[&] (bool value) { setBoolSetting("adventure", "quickCombat", value); });
-
-	spellbookAnim = new CToggleButton(Point(246, 87+64), "sysopchk.def", CGI->generaltexth->zelp[364],
-			[&] (bool value) { setBoolSetting("video", "spellbookAnimation", value); });
-
-	fullscreen = new CToggleButton(Point(246, 215), "sysopchk.def", CButton::tooltip(texts["fullscreenButton"]),
-			[&] (bool value) { setBoolSetting("video", "fullscreen", value); });
-
+	showReminder = std::make_shared<CToggleButton>(Point(246, 87), "sysopchk.def", CGI->generaltexth->zelp[361], [&](bool value)
+	{
+		setBoolSetting("adventure", "heroReminder", value);
+	});
 	showReminder->setSelected(settings["adventure"]["heroReminder"].Bool());
+
+	quickCombat = std::make_shared<CToggleButton>(Point(246, 87+32), "sysopchk.def", CGI->generaltexth->zelp[362], [&](bool value)
+	{
+		setBoolSetting("adventure", "quickCombat", value);
+	});
 	quickCombat->setSelected(settings["adventure"]["quickCombat"].Bool());
+
+	spellbookAnim = std::make_shared<CToggleButton>(Point(246, 87+64), "sysopchk.def", CGI->generaltexth->zelp[364], [&](bool value)
+	{
+		setBoolSetting("video", "spellbookAnimation", value);
+	});
 	spellbookAnim->setSelected(settings["video"]["spellbookAnimation"].Bool());
+
+	fullscreen = std::make_shared<CToggleButton>(Point(246, 215), "sysopchk.def", CButton::tooltip(texts["fullscreenButton"]), [&](bool value)
+	{
+		setBoolSetting("video", "fullscreen", value);
+	});
 	fullscreen->setSelected(settings["video"]["fullscreen"].Bool());
 
 	onFullscreenChanged([&](const JsonNode &newState){ fullscreen->setSelected(newState.Bool());});
 
-	gameResButton = new CButton(Point(28, 275),"buttons/resolution", CButton::tooltip(texts["resolutionButton"]),
-											std::bind(&CSystemOptionsWindow::selectGameRes, this), SDLK_g);
+	gameResButton = std::make_shared<CButton>(Point(28, 275),"buttons/resolution", CButton::tooltip(texts["resolutionButton"]), std::bind(&CSystemOptionsWindow::selectGameRes, this), SDLK_g);
 
 	std::string resText;
 	resText += boost::lexical_cast<std::string>(settings["video"]["screenRes"]["width"].Float());
 	resText += "x";
 	resText += boost::lexical_cast<std::string>(settings["video"]["screenRes"]["height"].Float());
-	gameResLabel = new CLabel(170, 292, FONT_MEDIUM, CENTER, Colors::YELLOW, resText);
-
+	gameResLabel = std::make_shared<CLabel>(170, 292, FONT_MEDIUM, CENTER, Colors::YELLOW, resText);
 }
 
 void CSystemOptionsWindow::selectGameRes()
@@ -629,35 +628,37 @@ void CSystemOptionsWindow::closeAndPushEvent(int eventType, int code)
 	GH.pushSDLEvent(eventType, code);
 }
 
-CTavernWindow::CTavernWindow(const CGObjectInstance *TavernObj):
-	CWindowObject(PLAYER_COLORED, "TPTAVERN"),
+CTavernWindow::CTavernWindow(const CGObjectInstance * TavernObj)
+	: CWindowObject(PLAYER_COLORED, "TPTAVERN"),
 	tavernObj(TavernObj)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+
 	std::vector<const CGHeroInstance*> h = LOCPLINT->cb->getAvailableHeroes(TavernObj);
 	if(h.size() < 2)
 		h.resize(2, nullptr);
 
-	h1 = new HeroPortrait(selected,0,72,299,h[0]);
-	h2 = new HeroPortrait(selected,1,162,299,h[1]);
-
 	selected = 0;
-	if (!h[0])
+	if(!h[0])
 		selected = 1;
-	if (!h[0] && !h[1])
+	if(!h[0] && !h[1])
 		selected = -1;
+
 	oldSelected = -1;
 
-	new CLabel(200, 35, FONT_BIG, CENTER, Colors::YELLOW, CGI->generaltexth->jktexts[37]);
-	new CLabel(320, 328, FONT_SMALL, CENTER, Colors::WHITE, boost::lexical_cast<std::string>(GameConstants::HERO_GOLD_COST));
+	h1 = std::make_shared<HeroPortrait>(selected, 0, 72, 299, h[0]);
+	h2 = std::make_shared<HeroPortrait>(selected, 1, 162, 299, h[1]);
+
+	title = std::make_shared<CLabel>(200, 35, FONT_BIG, CENTER, Colors::YELLOW, CGI->generaltexth->jktexts[37]);
+	cost = std::make_shared<CLabel>(320, 328, FONT_SMALL, CENTER, Colors::WHITE, boost::lexical_cast<std::string>(GameConstants::HERO_GOLD_COST));
 
 	auto rumorText = boost::str(boost::format(CGI->generaltexth->allTexts[216]) % LOCPLINT->cb->getTavernRumor(tavernObj));
-	new CTextBox(rumorText, Rect(32, 190, 330, 68), 0, FONT_SMALL, CENTER, Colors::WHITE);
+	rumor = std::make_shared<CTextBox>(rumorText, Rect(32, 190, 330, 68), 0, FONT_SMALL, CENTER, Colors::WHITE);
 
-	new CGStatusBar(new CPicture(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
-	cancel = new CButton(Point(310, 428), "ICANCEL.DEF", CButton::tooltip(CGI->generaltexth->tavernInfo[7]), std::bind(&CTavernWindow::close, this), SDLK_ESCAPE);
-	recruit = new CButton(Point(272, 355), "TPTAV01.DEF", CButton::tooltip(), std::bind(&CTavernWindow::recruitb, this), SDLK_RETURN);
-	thiefGuild = new CButton(Point(22, 428), "TPTAV02.DEF", CButton::tooltip(CGI->generaltexth->tavernInfo[5]), std::bind(&CTavernWindow::thievesguildb, this), SDLK_t);
+	statusBar = std::make_shared<CGStatusBar>(new CPicture(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
+	cancel = std::make_shared<CButton>(Point(310, 428), "ICANCEL.DEF", CButton::tooltip(CGI->generaltexth->tavernInfo[7]), std::bind(&CTavernWindow::close, this), SDLK_ESCAPE);
+	recruit = std::make_shared<CButton>(Point(272, 355), "TPTAV01.DEF", CButton::tooltip(), std::bind(&CTavernWindow::recruitb, this), SDLK_RETURN);
+	thiefGuild = std::make_shared<CButton>(Point(22, 428), "TPTAV02.DEF", CButton::tooltip(CGI->generaltexth->tavernInfo[5]), std::bind(&CTavernWindow::thievesguildb, this), SDLK_t);
 
 	if(LOCPLINT->cb->getResourceAmount(Res::GOLD) < GameConstants::HERO_GOLD_COST) //not enough gold
 	{
@@ -686,7 +687,7 @@ CTavernWindow::CTavernWindow(const CGObjectInstance *TavernObj):
 		if(selected == -1)
 			recruit->block(true);
 	}
-	if (LOCPLINT->castleInt)
+	if(LOCPLINT->castleInt)
 		CCS->videoh->open(LOCPLINT->castleInt->town->town->clientInfo.tavernVideo);
 	else
 		CCS->videoh->open("TAVERN.BIK");
@@ -717,7 +718,7 @@ void CTavernWindow::show(SDL_Surface * to)
 	CCS->videoh->update(pos.x+70, pos.y+56, to, true, false);
 	if(selected >= 0)
 	{
-		HeroPortrait *sel = selected ? h2 : h1;
+		auto sel = selected ? h2 : h1;
 
 		if (selected != oldSelected  &&  !recruit->isBlocked())
 		{
@@ -747,11 +748,11 @@ void CTavernWindow::HeroPortrait::clickRight(tribool down, bool previousState)
 	}
 }
 
-CTavernWindow::HeroPortrait::HeroPortrait(int &sel, int id, int x, int y, const CGHeroInstance *H)
-: h(H), _sel(&sel), _id(id)
+CTavernWindow::HeroPortrait::HeroPortrait(int & sel, int id, int x, int y, const CGHeroInstance * H)
+	: CIntObject(LCLICK | RCLICK | HOVER),
+	h(H), _sel(&sel), _id(id)
 {
-	addUsedEvents(LCLICK | RCLICK | HOVER);
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	h = H;
 	pos.x += x;
 	pos.y += y;
@@ -774,11 +775,11 @@ CTavernWindow::HeroPortrait::HeroPortrait(int &sel, int id, int x, int y, const 
 		boost::algorithm::replace_first(description, "%s", h->type->heroClass->name);
 		boost::algorithm::replace_first(description, "%d", boost::lexical_cast<std::string>(artifs));
 
-		new CAnimImage("portraitsLarge", h->portrait);
+		portrait = std::make_shared<CAnimImage>("portraitsLarge", h->portrait);
 	}
 }
 
-void CTavernWindow::HeroPortrait::hover( bool on )
+void CTavernWindow::HeroPortrait::hover(bool on)
 {
 	//Hoverable::hover(on);
 	if(on)
@@ -843,8 +844,8 @@ void CExchangeWindow::prepareBackground()
 	new CAnimImage("PortraitsLarge", heroInst[1]->portrait, 0, 485, 13);
 }
 
-CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID queryID):
-	CWindowObject(PLAYER_COLORED | BORDERED, "TRADE2")
+CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID queryID)
+	: CWindowObject(PLAYER_COLORED | BORDERED, "TRADE2")
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	heroInst[0] = LOCPLINT->cb->getHero(hero1);
@@ -1647,27 +1648,29 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 	}
 }
 
-CObjectListWindow::CItem::CItem(CObjectListWindow *_parent, size_t _id, std::string _text):
+CObjectListWindow::CItem::CItem(CObjectListWindow * _parent, size_t _id, std::string _text)
+	: CIntObject(LCLICK),
 	parent(_parent),
 	index(_id)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	border = new CPicture("TPGATES");
+	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	border = std::make_shared<CPicture>("TPGATES");
 	pos = border->pos;
-	addUsedEvents(LCLICK);
+
 	type |= REDRAW_PARENT;
 
-	text = new CLabel(pos.w/2, pos.h/2, FONT_SMALL, CENTER, Colors::WHITE, _text);
+	text = std::make_shared<CLabel>(pos.w/2, pos.h/2, FONT_SMALL, CENTER, Colors::WHITE, _text);
 	select(index == parent->selected);
 }
 
 void CObjectListWindow::CItem::select(bool on)
 {
-	if (on)
-		border->recActions = 255;
+	ui8 mask = UPDATE | SHOWALL;
+	if(on)
+		border->recActions |= mask;
 	else
-		border->recActions = ~(UPDATE | SHOWALL);
-	redraw();
+		border->recActions &= ~mask;
+	redraw();//???
 }
 
 void CObjectListWindow::CItem::clickLeft(tribool down, bool previousState)
@@ -1676,54 +1679,54 @@ void CObjectListWindow::CItem::clickLeft(tribool down, bool previousState)
 		parent->changeSelection(index);
 }
 
-CObjectListWindow::CObjectListWindow(const std::vector<int> &_items, CIntObject * titlePic, std::string _title, std::string _descr,
-				std::function<void(int)> Callback):
-	CWindowObject(PLAYER_COLORED, "TPGATE"),
+CObjectListWindow::CObjectListWindow(const std::vector<int> & _items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback)
+	: CWindowObject(PLAYER_COLORED, "TPGATE"),
 	onSelect(Callback),
 	selected(0)
 {
+	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	items.reserve(_items.size());
 	for(int id : _items)
 	{
 		items.push_back(std::make_pair(id, CGI->mh->map->objects[id]->getObjectName()));
 	}
 
-	init(titlePic, _title, _descr);
+	init(titleWidget_, _title, _descr);
 }
 
-CObjectListWindow::CObjectListWindow(const std::vector<std::string> &_items, CIntObject * titlePic, std::string _title, std::string _descr,
-				std::function<void(int)> Callback):
-	CWindowObject(PLAYER_COLORED, "TPGATE"),
+CObjectListWindow::CObjectListWindow(const std::vector<std::string> & _items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback)
+	: CWindowObject(PLAYER_COLORED, "TPGATE"),
 	onSelect(Callback),
 	selected(0)
 {
+	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	items.reserve(_items.size());
 
-	for (size_t i=0; i<_items.size(); i++)
+	for(size_t i=0; i<_items.size(); i++)
 		items.push_back(std::make_pair(int(i), _items[i]));
 
-	init(titlePic, _title, _descr);
+	init(titleWidget_, _title, _descr);
 }
 
-void CObjectListWindow::init(CIntObject * titlePic, std::string _title, std::string _descr)
+void CObjectListWindow::init(std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	titleWidget = titleWidget_;
 
-	title = new CLabel(152, 27, FONT_BIG, CENTER, Colors::YELLOW, _title);
-	descr = new CLabel(145, 133, FONT_SMALL, CENTER, Colors::WHITE, _descr);
+	title = std::make_shared<CLabel>(152, 27, FONT_BIG, CENTER, Colors::YELLOW, _title);
+	descr = std::make_shared<CLabel>(145, 133, FONT_SMALL, CENTER, Colors::WHITE, _descr);
 
-	ok = new CButton(Point(15, 402), "IOKAY.DEF", CButton::tooltip(), std::bind(&CObjectListWindow::elementSelected, this), SDLK_RETURN);
+	ok = std::make_shared<CButton>(Point(15, 402), "IOKAY.DEF", CButton::tooltip(), std::bind(&CObjectListWindow::elementSelected, this), SDLK_RETURN);
 	ok->block(true);
-	exit = new CButton( Point(228, 402), "ICANCEL.DEF", CButton::tooltip(), std::bind(&CObjectListWindow::exitPressed, this), SDLK_ESCAPE);
+	exit = std::make_shared<CButton>( Point(228, 402), "ICANCEL.DEF", CButton::tooltip(), std::bind(&CObjectListWindow::exitPressed, this), SDLK_ESCAPE);
 
-	if (titlePic)
+	if(titleWidget)
 	{
-		addChild(titlePic);
-		titlePic->recActions = defActions;
-		titlePic->pos.x = pos.w/2 + pos.x - titlePic->pos.w/2;
-		titlePic->pos.y =75 + pos.y - titlePic->pos.h/2;
+		addChild(titleWidget.get());
+		titleWidget->recActions = 255-DISPOSE;
+		titleWidget->pos.x = pos.w/2 + pos.x - titleWidget->pos.w/2;
+		titleWidget->pos.y =75 + pos.y - titleWidget->pos.h/2;
 	}
-	list = new CListBox(std::bind(&CObjectListWindow::genItem, this, _1), CListBox::DestroyFunc(),
+	list = std::make_shared<CListBox>(std::bind(&CObjectListWindow::genItem, this, _1), CListBox::DestroyFunc(),
 		Point(14, 151), Point(0, 25), 9, items.size(), 0, 1, Rect(262, -32, 256, 256) );
 	list->type |= REDRAW_PARENT;
 }

@@ -321,19 +321,20 @@ void CGStatusBar::clear()
 	setText("");
 }
 
-CGStatusBar::CGStatusBar(CPicture *BG, EFonts Font, EAlignment Align, const SDL_Color &Color)
-: CLabel(BG->pos.x, BG->pos.y, Font, Align, Color, "")
+CGStatusBar::CGStatusBar(CPicture * BG, EFonts Font, EAlignment Align, const SDL_Color & Color)
+	: CLabel(BG->pos.x, BG->pos.y, Font, Align, Color, "")
 {
 	init();
 	bg = BG;
 	addChild(bg);
+	bg->recActions |= DISPOSE;
 	pos = bg->pos;
 	getBorderSize();
 	textLock = false;
 }
 
 CGStatusBar::CGStatusBar(int x, int y, std::string name, int maxw)
-: CLabel(x, y, FONT_SMALL, CENTER)
+	: CLabel(x, y, FONT_SMALL, CENTER)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	init();

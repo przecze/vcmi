@@ -403,8 +403,6 @@ void CToggleGroup::addToggle(int identifier, CToggleBase* bt)
 {
 	if (auto intObj = dynamic_cast<CIntObject*>(bt)) // hack-ish workagound to avoid diamond problem with inheritance
 	{
-		if (intObj->parent)
-			intObj->parent->removeChild(intObj);
 		addChild(intObj);
 	}
 

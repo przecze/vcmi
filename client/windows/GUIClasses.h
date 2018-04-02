@@ -33,53 +33,60 @@ class CToggleButton;
 class CToggleGroup;
 class CVolumeSlider;
 class CGStatusBar;
+class CTextBox;
 
 /// Recruitment window where you can recruit creatures
 class CRecruitmentWindow : public CWindowObject
 {
-	class CCreatureCard : public CIntObject
+	class CCreatureCard : public CIntObject, public std::enable_shared_from_this<CCreatureCard>
 	{
 		CRecruitmentWindow * parent;
-		CCreaturePic *pic; //creature's animation
+		std::shared_ptr<CCreaturePic> animation;
 		bool selected;
 
-		void clickLeft(tribool down, bool previousState) override;
-		void clickRight(tribool down, bool previousState) override;
-		void showAll(SDL_Surface *to) override;
 	public:
 		const CCreature * creature;
 		si32 amount;
 
 		void select(bool on);
 
-		CCreatureCard(CRecruitmentWindow * window, const CCreature *crea, int totalAmount);
+		CCreatureCard(CRecruitmentWindow * window, const CCreature * crea, int totalAmount);
+
+		void clickLeft(tribool down, bool previousState) override;
+		void clickRight(tribool down, bool previousState) override;
+		void showAll(SDL_Surface * to) override;
 	};
 
 	std::function<void(CreatureID,int)> onRecruit; //void (int ID, int amount) <-- call to recruit creatures
 
 	int level;
-	const CArmedInstance *dst;
+	const CArmedInstance * dst;
 
-	CCreatureCard * selected;
-	std::vector<CCreatureCard *> cards;
+	std::shared_ptr<CGStatusBar> statusBar;
 
-	CSlider *slider; //for selecting amount
-	CButton *maxButton, *buyButton, *cancelButton;
-	//labels for visible values
-	CLabel * title;
-	CLabel * availableValue;
-	CLabel * toRecruitValue;
-	CreatureCostBox * costPerTroopValue;
-	CreatureCostBox * totalCostValue;
+	std::shared_ptr<CCreatureCard> selected;
+	std::vector<std::shared_ptr<CCreatureCard>> cards;
 
-	void select(CCreatureCard * card);
+	std::shared_ptr<CSlider> slider;
+	std::shared_ptr<CButton> maxButton;
+	std::shared_ptr<CButton> buyButton;
+	std::shared_ptr<CButton> cancelButton;
+	std::shared_ptr<CLabel> title;
+	std::shared_ptr<CLabel> availableValue;
+	std::shared_ptr<CLabel> toRecruitValue;
+	std::shared_ptr<CLabel> availableTitle;
+	std::shared_ptr<CLabel> toRecruitTitle;
+	std::shared_ptr<CreatureCostBox> costPerTroopValue;
+	std::shared_ptr<CreatureCostBox> totalCostValue;
+
+	void select(std::shared_ptr<CCreatureCard> card);
 	void buy();
 	void sliderMoved(int to);
 
-	void showAll(SDL_Surface *to) override;
+	void showAll(SDL_Surface * to) override;
 public:
 	const CGDwelling * const dwelling;
-	CRecruitmentWindow(const CGDwelling *Dwelling, int Level, const CArmedInstance *Dst, const std::function<void(CreatureID,int)> & Recruit, int y_offset = 0); //creatures - pairs<creature_ID,amount> //c-tor
+	CRecruitmentWindow(const CGDwelling * Dwelling, int Level, const CArmedInstance * Dst, const std::function<void(CreatureID,int)> & Recruit, int y_offset = 0);
 	void availableCreaturesChanged();
 };
 
@@ -92,12 +99,15 @@ class CSplitWindow : public CWindowObject
 
 	int leftMin;
 	int rightMin;
+	std::shared_ptr<CLabel> title;
+	std::shared_ptr<CSlider> slider;
+	std::shared_ptr<CCreaturePic> animLeft;
+	std::shared_ptr<CCreaturePic> animRight;
+	std::shared_ptr<CButton> ok;
+	std::shared_ptr<CButton> cancel;
+	std::shared_ptr<CTextInput> leftInput;
+	std::shared_ptr<CTextInput> rightInput;
 
-	CSlider *slider;
-	CCreaturePic *animLeft, *animRight; //creature's animation
-	CButton *ok, *cancel;
-
-	CTextInput *leftInput, *rightInput;
 	void setAmountText(std::string text, bool left);
 	void setAmount(int value, bool left);
 	void sliderMoved(int value);
@@ -110,14 +120,20 @@ public:
 	 * leftMin, rightMin - minimal amount of creatures in each stack
 	 * leftAmount, rightAmount - amount of creatures in each stack
 	 */
-	CSplitWindow(const CCreature * creature, std::function<void(int, int)> callback,
-	             int leftMin, int rightMin, int leftAmount, int rightAmount);
+	CSplitWindow(const CCreature * creature, std::function<void(int, int)> callback, int leftMin, int rightMin, int leftAmount, int rightAmount);
 };
 
-/// Raised up level windowe where you can select one out of two skills
+/// Raised up level window where you can select one out of two skills
 class CLevelWindow : public CWindowObject
 {
-	CComponentBox * box; //skills to select
+	std::shared_ptr<CAnimImage> portrait;
+	std::shared_ptr<CButton> ok;
+	std::shared_ptr<CLabel> mainTitle;
+	std::shared_ptr<CLabel> levelTitle;
+	std::shared_ptr<CAnimImage> skillIcon;
+	std::shared_ptr<CLabel> skillValue;
+
+	std::shared_ptr<CComponentBox> box; //skills to select
 	std::function<void(ui32)> cb;
 
 	void selectionChanged(unsigned to);
@@ -125,7 +141,6 @@ public:
 
 	CLevelWindow(const CGHeroInstance *hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill> &skills, std::function<void(ui32)> callback);
 	~CLevelWindow();
-
 };
 
 /// Town portal, castle gate window
@@ -133,27 +148,29 @@ class CObjectListWindow : public CWindowObject
 {
 	class CItem : public CIntObject
 	{
-		CObjectListWindow *parent;
-		CLabel *text;
-		CPicture *border;
+		CObjectListWindow * parent;
+		std::shared_ptr<CLabel> text;
+		std::shared_ptr<CPicture> border;
 	public:
 		const size_t index;
-		CItem(CObjectListWindow *parent, size_t id, std::string text);
+		CItem(CObjectListWindow * parent, size_t id, std::string text);
 
 		void select(bool on);
 		void clickLeft(tribool down, bool previousState) override;
 	};
 
 	std::function<void(int)> onSelect;//called when OK button is pressed, returns id of selected item.
-	CLabel * title;
-	CLabel * descr;
+	std::shared_ptr<CIntObject> titleWidget;
+	std::shared_ptr<CLabel> title;
+	std::shared_ptr<CLabel> descr;
 
-	CListBox * list;
-	CButton *ok, *exit;
+	std::shared_ptr<CListBox> list;
+	std::shared_ptr<CButton> ok;
+	std::shared_ptr<CButton> exit;
 
 	std::vector< std::pair<int, std::string> > items;//all items present in list
 
-	void init(CIntObject * titlePic, std::string _title, std::string _descr);
+	void init(std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr);
 	void exitPressed();
 public:
 	size_t selected;//index of currently selected item
@@ -163,13 +180,10 @@ public:
 	/// Callback will be called when OK button is pressed, returns id of selected item. initState = initially selected item
 	/// Image can be nullptr
 	///item names will be taken from map objects
-	CObjectListWindow(const std::vector<int> &_items, CIntObject * titlePic, std::string _title, std::string _descr,
-                      std::function<void(int)> Callback);
+	CObjectListWindow(const std::vector<int> &_items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback);
+	CObjectListWindow(const std::vector<std::string> &_items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback);
 
-	CObjectListWindow(const std::vector<std::string> &_items, CIntObject * titlePic, std::string _title, std::string _descr,
-                      std::function<void(int)> Callback);
-
-	CIntObject *genItem(size_t index);
+	CIntObject * genItem(size_t index);
 	void elementSelected();//call callback and close this window
 	void changeSelection(size_t which);
 	void keyPressed (const SDL_KeyboardEvent & key) override;
@@ -178,23 +192,28 @@ public:
 class CSystemOptionsWindow : public CWindowObject
 {
 private:
-	CLabel *title;
-	CLabelGroup *leftGroup;
-	CLabelGroup *rightGroup;
-	CButton *load, *save, *restart, *mainMenu, *quitGame, *backToMap; //load and restart are not used yet
-	CToggleGroup * heroMoveSpeed;
-	CToggleGroup * enemyMoveSpeed;
-	CToggleGroup * mapScrollSpeed;
-	CVolumeSlider * musicVolume, * effectsVolume;
+	std::shared_ptr<CLabel> title;
+	std::shared_ptr<CLabelGroup> leftGroup;
+	std::shared_ptr<CLabelGroup> rightGroup;
+	std::shared_ptr<CButton> load;
+	std::shared_ptr<CButton> save;
+	std::shared_ptr<CButton> restart;
+	std::shared_ptr<CButton> mainMenu;
+	std::shared_ptr<CButton> quitGame;
+	std::shared_ptr<CButton> backToMap; //load and restart are not used yet
+	std::shared_ptr<CToggleGroup> heroMoveSpeed;
+	std::shared_ptr<CToggleGroup> enemyMoveSpeed;
+	std::shared_ptr<CToggleGroup> mapScrollSpeed;
+	std::shared_ptr<CVolumeSlider> musicVolume;
+	std::shared_ptr<CVolumeSlider> effectsVolume;
 
-	//CHighlightableButton * showPath;
-	CToggleButton * showReminder;
-	CToggleButton * quickCombat;
-	CToggleButton * spellbookAnim;
-	CToggleButton * fullscreen;
+	std::shared_ptr<CToggleButton> showReminder;
+	std::shared_ptr<CToggleButton> quickCombat;
+	std::shared_ptr<CToggleButton> spellbookAnim;
+	std::shared_ptr<CToggleButton> fullscreen;
 
-	CButton *gameResButton;
-	CLabel *gameResLabel;
+	std::shared_ptr<CButton> gameResButton;
+	std::shared_ptr<CLabel> gameResLabel;
 
 	SettingsListener onFullscreenChanged;
 
@@ -222,26 +241,39 @@ public:
 	public:
 		std::string hoverName;
 		std::string description; // "XXX is a level Y ZZZ with N artifacts"
-		const CGHeroInstance *h;
+		const CGHeroInstance * h;
 
 		void clickLeft(tribool down, bool previousState) override;
 		void clickRight(tribool down, bool previousState) override;
 		void hover (bool on) override;
-		HeroPortrait(int &sel, int id, int x, int y, const CGHeroInstance *H);
+		HeroPortrait(int & sel, int id, int x, int y, const CGHeroInstance * H);
 
 	private:
 		int *_sel;
 		const int _id;
 
-	} *h1, *h2; //recruitable heroes
+		std::shared_ptr<CAnimImage> portrait;
+	};
+
+	//recruitable heroes
+	std::shared_ptr<HeroPortrait> h1;
+	std::shared_ptr<HeroPortrait> h2; //recruitable heroes
 
 	int selected;//0 (left) or 1 (right)
 	int oldSelected;//0 (left) or 1 (right)
 
-	CButton *thiefGuild, *cancel, *recruit;
-	const CGObjectInstance *tavernObj;
+	std::shared_ptr<CButton> thiefGuild;
+	std::shared_ptr<CButton> cancel;
+	std::shared_ptr<CButton> recruit;
 
-	CTavernWindow(const CGObjectInstance *TavernObj);
+	const CGObjectInstance * tavernObj;
+
+	std::shared_ptr<CLabel> title;
+	std::shared_ptr<CLabel> cost;
+	std::shared_ptr<CTextBox> rumor;
+	std::shared_ptr<CGStatusBar> statusBar;
+
+	CTavernWindow(const CGObjectInstance * TavernObj);
 	~CTavernWindow();
 
 	void recruitb();

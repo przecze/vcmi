@@ -1275,7 +1275,7 @@ void CPlayerInterface::showMapObjectSelectDialog(QueryID askID, const Component 
 	localIconC->removeChild(localIcon, false);
 	delete localIconC;
 
-	CObjectListWindow * wnd = new CObjectListWindow(tempList, localIcon, localTitle, localDescription, selectCallback);
+	CObjectListWindow * wnd = new CObjectListWindow(tempList, std::shared_ptr<CIntObject>(localIcon), localTitle, localDescription, selectCallback);
 	wnd->onExit = cancelCallback;
 	GH.pushInt(wnd);
 }

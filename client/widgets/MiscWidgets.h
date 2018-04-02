@@ -15,7 +15,6 @@ class CLabel;
 class CCreatureAnim;
 class CComponent;
 class CGGarrison;
-class CSelectableComponent;
 struct InfoAboutArmy;
 class CArmedInstance;
 class IBonusBearer;
