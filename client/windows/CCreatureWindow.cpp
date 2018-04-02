@@ -653,7 +653,7 @@ void CStackWindow::CWindowSection::createButtonPanel()
 			};
 			auto upgradeBtn = new CButton(Point(221 + i * 40, 5), "stackWindow/upgradeButton", CGI->generaltexth->zelp[446], onClick, SDLK_1);
 
-			upgradeBtn->addOverlay(new CAnimImage("CPRSMALL", VLC->creh->creatures[upgradeInfo.info.newID[i]]->iconIndex));
+			upgradeBtn->addOverlay(std::make_shared<CAnimImage>("CPRSMALL", VLC->creh->creatures[upgradeInfo.info.newID[i]]->iconIndex));
 		}
 	}
 
@@ -672,7 +672,7 @@ void CStackWindow::CWindowSection::createButtonPanel()
 
 			const JsonNode & text = VLC->generaltexth->localizedTexts["creatureWindow"][btnIDs[i]];
 			parent->switchButtons[i] = new CButton(Point(302 + i*40, 5), "stackWindow/upgradeButton", CButton::tooltip(text), onSwitch);
-			parent->switchButtons[i]->addOverlay(new CAnimImage("stackWindow/switchModeIcons", i));
+			parent->switchButtons[i]->addOverlay(std::make_shared<CAnimImage>("stackWindow/switchModeIcons", i));
 		}
 		parent->switchButtons[parent->activeTab]->disable();
 	}
