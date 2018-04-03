@@ -3,7 +3,7 @@
 {
 	"type" : "object",
 	"$schema": "http://json-schema.org/draft-04/schema",
-	"required" : [ "general", "video", "adventure", "pathfinder", "battle", "server", "logging", "launcher" ],
+	"required" : [ "general", "video", "adventure", "pathfinder", "battle", "server", "logging", "launcher", "session" ],
 	"definitions" : {
 		"logLevelEnum" : {
 			"type" : "string",
@@ -357,6 +357,18 @@
 				"autoCheckRepositories" : {
 					"type" : "boolean",
 					"default" : true
+				}
+			}
+		},
+		"session" : {
+			"type" : "object",
+			"default": {},
+			"additionalProperties" : false,
+			"required" : [ "savefrequency" ],
+			"properties" : {
+				"savefrequency" : {
+					"type" : "number",
+					"default" : 1
 				}
 			}
 		}

@@ -311,26 +311,46 @@ int main(int argc, char * argv[])
 	preinitDLL(::console);
 	settings.init();
 	Settings session = settings.write["session"];
-	session["onlyai"].Bool() = vm.count("onlyAI");
+	auto setSessionBool = [&session](std::string key, std::string arg) {
+		if(::vm.count(arg))
+			session[key].Bool() = true;
+		else if(session[key].isNull())
+			session[key].Bool() = false;
+	};
+	auto setSessionInteger = [&session](std::string key, std::string arg, si64 defaultValue) {
+		if(::vm.count(arg))
+			session[key].Integer() = ::vm[arg].as<si64>();
+		else if(session[key].isNull())
+			session[key].Integer() = defaultValue;
+	};
+	auto setSessionString = [&session](std::string key, std::string arg, std::string defaultValue) {
+		if(::vm.count(arg))
+			session[key].String() = ::vm[arg].as<std::string>();
+		else if(session[key].isNull())
+			session[key].String() = defaultValue;
+	};
+
+	setSessionBool("onlyai", "onlyAI");
 	if(vm.count("headless"))
 	{
 		session["headless"].Bool() = true;
 		session["onlyai"].Bool() = true;
 	}
 	// Server settings
-	session["donotstartserver"].Bool() = vm.count("donotstartserver");
+	setSessionBool("donotstartserver", "donotstartserver");
 
 	// Shared memory options
-	session["disable-shm"].Bool() = vm.count("disable-shm");
-	session["enable-shm-uuid"].Bool() = vm.count("enable-shm-uuid");
+	setSessionBool("disable-shm", "disable-shm");
+	setSessionBool("enable-shm-uuid", "enable-shm-uuid");
 
 	// Init special testing settings
-	session["serverport"].Integer() = vm.count("serverport") ? vm["serverport"].as<si64>() : 0;
-	session["saveprefix"].String() = vm.count("saveprefix") ? vm["saveprefix"].as<std::string>() : "";
-	session["savefrequency"].Integer() = vm.count("savefrequency") ? vm["savefrequency"].as<si64>() : 1;
+	setSessionInteger("serverport", "serverport", 0);
+	setSessionString("saveprefix", "saveprefix", "");
+	setSessionInteger("savefrequency", "savefrequency", 1);
 
 	// Initialize logging based on settings
 	logConfig.configure();
+	logGlobal->debug("settings = %s", settings.toJsonNode().toJson());
 
 	// Some basic data validation to produce better error messages in cases of incorrect install
 	auto testFile = [](std::string filename, std::string message) -> bool

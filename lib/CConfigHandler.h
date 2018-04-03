@@ -32,6 +32,7 @@ class DLL_LINKAGE SettingsStorage
 
 	std::set<SettingsListener*> listeners;
 	JsonNode config;
+	JsonNode originalConfig;
 	JsonNode & getNode(std::vector<std::string> path);
 
 	// Calls all required listeners
@@ -50,7 +51,8 @@ public:
 	const NodeAccessor<SettingsListener> listen;
 
 	//Read access, see JsonNode::operator[]
-	const JsonNode& operator [](std::string value);
+	const JsonNode & operator [](std::string value) const;
+	const JsonNode & toJsonNode() const;
 
 	friend class SettingsListener;
 	friend class Settings;

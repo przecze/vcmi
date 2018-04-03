@@ -168,6 +168,7 @@ void CPlayerInterface::yourTurn()
 		adventureInt->selection = nullptr;
 
 		std::string prefix = settings["session"]["saveprefix"].String();
+		int frequency = settings["session"]["savefrequency"].Integer();
 		if (firstCall)
 		{
 			if (howManyPeople == 1)
@@ -183,7 +184,7 @@ void CPlayerInterface::yourTurn()
 			}
 			firstCall = 0;
 		}
-		else if (cb->getDate() % static_cast<int>(settings["session"]["savefrequency"].Integer()) == 0)
+		else if(frequency > 0 && cb->getDate() % frequency == 0)
 		{
 			LOCPLINT->cb->save("Saves/" + prefix + "Autosave_" + boost::lexical_cast<std::string>(autosaveCount++ + 1));
 			autosaveCount %= 5;
