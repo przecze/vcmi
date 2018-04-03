@@ -45,13 +45,12 @@ CIntObject::~CIntObject()
 	if(active_m)
 		deactivate();
 
-	if(defActions & DISPOSE)
+	while(!children.empty())
 	{
-		while(!children.empty())
-			if(children.front()->recActions & DISPOSE)
-				delete children.front();
-			else
-				removeChild(children.front());
+		if((defActions & DISPOSE) && (children.front()->recActions & DISPOSE))
+			delete children.front();
+		else
+			removeChild(children.front());
 	}
 
 	if(parent_m)
